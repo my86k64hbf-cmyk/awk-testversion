@@ -11,8 +11,8 @@
       --green: #0b5d3b;
       --green-dark: #07442b;
       --green-soft: #e9f4ee;
-      --bg: #f3f6f4;
-      --card: #fff;
+      --background: #f3f6f4;
+      --card: #ffffff;
       --text: #17211c;
       --muted: #68756e;
       --border: #dce5df;
@@ -20,17 +20,27 @@
       --shadow: 0 8px 25px rgba(16, 43, 29, .08);
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
       color: var(--text);
-      background: var(--bg);
+      background: var(--background);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
-    button, input, select { font: inherit; }
-    button { cursor: pointer; border: 0; }
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      border: 0;
+    }
 
     .app-header {
       padding: 18px 16px;
@@ -39,7 +49,8 @@
       box-shadow: 0 2px 10px rgba(0, 0, 0, .14);
     }
 
-    .header-inner, main {
+    .header-inner,
+    main {
       width: min(1100px, calc(100% - 32px));
       margin: 0 auto;
     }
@@ -63,14 +74,37 @@
       height: 40px;
       place-items: center;
       border-radius: 10px;
-      background: rgba(255,255,255,.16);
+      background: rgba(255, 255, 255, .16);
       font-weight: 800;
     }
 
-    h1, h2, h3, p { margin-top: 0; }
-    h1 { margin-bottom: 2px; font-size: 19px; }
-    h2 { margin-bottom: 5px; font-size: 23px; }
-    h3 { margin-bottom: 14px; font-size: 18px; }
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 2px;
+      font-size: 19px;
+    }
+
+    h2 {
+      margin-bottom: 5px;
+      font-size: 23px;
+    }
+
+    h3 {
+      margin-bottom: 14px;
+      font-size: 18px;
+    }
 
     .brand p {
       margin: 0;
@@ -78,15 +112,21 @@
       font-size: 13px;
     }
 
-    main { padding: 24px 0 48px; }
+    main {
+      padding: 24px 0 48px;
+    }
 
     .role-select {
-      min-width: 170px;
+      min-width: 165px;
       padding: 8px 10px;
       color: white;
-      border: 1px solid rgba(255,255,255,.35);
+      border: 1px solid rgba(255, 255, 255, .35);
       border-radius: 8px;
-      background: rgba(0,0,0,.14);
+      background: rgba(0, 0, 0, .14);
+    }
+
+    #trainerTeamSelect {
+      min-width: 155px;
     }
 
     .role-select option {
@@ -116,8 +156,13 @@
       border-color: var(--green);
     }
 
-    .panel { display: none; }
-    .panel.active { display: block; }
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
 
     .section-head,
     .attendance-head {
@@ -263,7 +308,9 @@
       background: var(--green);
     }
 
-    .button-primary:hover { background: var(--green-dark); }
+    .button-primary:hover {
+      background: var(--green-dark);
+    }
 
     .button-secondary {
       color: var(--green);
@@ -272,7 +319,7 @@
 
     .player-row {
       display: grid;
-      grid-template-columns: minmax(160px, 1fr) auto;
+      grid-template-columns: minmax(150px, 1fr) auto;
       align-items: center;
       gap: 12px;
       padding: 12px 0;
@@ -284,7 +331,9 @@
       border-bottom: 0;
     }
 
-    .player-name { font-weight: 720; }
+    .player-name {
+      font-weight: 720;
+    }
 
     .player-note {
       margin-top: 3px;
@@ -355,7 +404,9 @@
       font-size: 13px;
     }
 
-    .table-wrap { overflow-x: auto; }
+    .table-wrap {
+      overflow-x: auto;
+    }
 
     table {
       width: 100%;
@@ -458,15 +509,34 @@
       transition: transform .2s ease;
     }
 
-    .toast.show { transform: translateY(0); }
-
-    code {
-      padding: 1px 4px;
-      border-radius: 4px;
-      background: rgba(0,0,0,.08);
+    .toast.show {
+      transform: translateY(0);
     }
 
     @media (max-width: 760px) {
+      .header-inner,
+      .section-head,
+      .attendance-head {
+        align-items: flex-start;
+      }
+
+      .header-inner,
+      .section-head,
+      .attendance-head {
+        flex-direction: column;
+      }
+
+      .header-controls {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .role-select,
+      #trainerTeamSelect {
+        min-width: 0;
+      }
+
       .filters,
       .form-grid,
       .form-grid.two-columns,
@@ -475,10 +545,8 @@
         grid-template-columns: 1fr;
       }
 
-      .section-head,
-      .attendance-head {
-        flex-direction: column;
-        align-items: flex-start;
+      .player-row {
+        grid-template-columns: 1fr;
       }
 
       .status-group,
@@ -486,11 +554,9 @@
         justify-content: flex-start;
       }
 
-      .player-row {
-        grid-template-columns: 1fr;
+      .brand p {
+        display: none;
       }
-
-      .brand p { display: none; }
     }
   </style>
 </head>
@@ -506,10 +572,14 @@
         </div>
       </div>
 
-      <select class="role-select" id="roleSelect" aria-label="Ansicht auswählen">
-        <option value="trainer">Traineransicht</option>
-        <option value="juko">Juniorenkommission</option>
-      </select>
+      <div class="header-controls">
+        <select class="role-select" id="trainerTeamSelect" aria-label="Trainerteam auswählen"></select>
+
+        <select class="role-select" id="roleSelect" aria-label="Ansicht auswählen">
+          <option value="trainer">Traineransicht</option>
+          <option value="juko">Juniorenkommission</option>
+        </select>
+      </div>
     </div>
   </header>
 
@@ -641,8 +711,9 @@
       </div>
 
       <div class="notice">
-        Nicht berücksichtigt werden <strong>Ferien</strong>, <strong>Verletzt</strong> und <strong>Nicht aufgeboten</strong>.
+        Nicht berücksichtigt werden Ferien, Verletzt und Nicht aufgeboten.
         Anwesend und Zu spät gelten als anwesend.
+        Entschuldigt, Krank und Unentschuldigt zählen als Abwesenheit.
       </div>
 
       <div class="filters card">
@@ -792,7 +863,7 @@
             <button class="button button-primary" type="submit">Team hinzufügen</button>
           </form>
 
-          <div class="admin-list" id="teamAdminList"></div>
+          <div class="admin-list" id="teamAdminList" style="margin-top:18px"></div>
         </div>
 
         <div class="card">
@@ -816,8 +887,9 @@
 
           <div class="notice" style="margin-top:18px">
             <strong>Spieler per CSV importieren</strong><br>
-            Unterstützt werden CSV-Dateien mit den Spalten <code>Name</code> und optional <code>Team</code>.
-            Ohne Teamspalte oder bei leerem Team wird das unten ausgewählte Standard Team verwendet.
+            Die CSV-Datei braucht die Spalte <code>Name</code>.
+            Die Spalte <code>Team</code> ist optional.
+            Ohne Teamangabe werden alle Spieler dem ausgewählten Standard Team zugeteilt.
           </div>
 
           <form id="playerImportForm">
@@ -836,7 +908,7 @@
             <button class="button button-secondary" type="submit">Spieler importieren</button>
           </form>
 
-          <div class="admin-list" id="playerAdminList"></div>
+          <div class="admin-list" id="playerAdminList" style="margin-top:18px"></div>
         </div>
       </div>
     </section>
@@ -847,6 +919,7 @@
   <script>
     (() => {
       const STORAGE_KEY = "awk-anwesenheit-v5";
+      const TRAINER_TEAM_KEY = "awk-trainer-team";
 
       const statuses = [
         { id: "present", label: "Anwesend", short: "A", color: "#198754", present: true },
@@ -882,15 +955,28 @@
       const state = {
         role: "trainer",
         activeEventId: null,
+        trainerTeamId: localStorage.getItem(TRAINER_TEAM_KEY) || "",
         data: loadData()
       };
 
       function loadData() {
         try {
-          return JSON.parse(localStorage.getItem(STORAGE_KEY)) || structuredClone(defaultData);
+          const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY));
+
+          if (
+            savedData &&
+            Array.isArray(savedData.teams) &&
+            Array.isArray(savedData.players) &&
+            Array.isArray(savedData.events)
+          ) {
+            savedData.attendance ||= {};
+            return savedData;
+          }
         } catch {
           return structuredClone(defaultData);
         }
+
+        return structuredClone(defaultData);
       }
 
       function saveData() {
@@ -903,13 +989,12 @@
 
       function escapeHtml(value) {
         const element = document.createElement("span");
-        element.textContent = value;
+        element.textContent = String(value || "");
         return element.innerHTML;
       }
 
       function normalizeText(value) {
         return String(value || "")
-          .replace(/^\uFEFF/, "")
           .trim()
           .toLocaleLowerCase("de-CH")
           .replace(/\s+/g, " ");
@@ -937,61 +1022,97 @@
       }
 
       function trainerTeamId() {
-        return state.data.teams[0]?.id || "";
+        const teamExists = state.data.teams.some(team => team.id === state.trainerTeamId);
+
+        if (!teamExists) {
+          state.trainerTeamId = state.data.teams[0]?.id || "";
+          localStorage.setItem(TRAINER_TEAM_KEY, state.trainerTeamId);
+        }
+
+        return state.trainerTeamId;
       }
 
       function allowedTeamIds() {
-        return state.role === "juko"
-          ? state.data.teams.map(team => team.id)
-          : [trainerTeamId()];
+        if (state.role === "juko") {
+          return state.data.teams.map(team => team.id);
+        }
+
+        return trainerTeamId() ? [trainerTeamId()] : [];
+      }
+
+      function refreshTrainerTeamSelect() {
+        const select = $("#trainerTeamSelect");
+        const selectedTeamId = trainerTeamId();
+
+        select.innerHTML = state.data.teams.map(team => `
+          <option value="${team.id}">
+            ${escapeHtml(team.name)}
+          </option>
+        `).join("");
+
+        select.value = selectedTeamId;
       }
 
       function fillTeamSelect(select, allLabel = "", selected = "") {
-        const current = selected || select.value;
+        const currentValue = selected || select.value;
         const teams = state.data.teams.filter(team => allowedTeamIds().includes(team.id));
 
         select.innerHTML =
           (allLabel ? `<option value="all">${allLabel}</option>` : "") +
-          teams.map(team =>
-            `<option value="${team.id}">${escapeHtml(team.name)}</option>`
-          ).join("");
+          teams.map(team => `
+            <option value="${team.id}">${escapeHtml(team.name)}</option>
+          `).join("");
 
         const values = [...select.options].map(option => option.value);
 
-        select.value = values.includes(current)
-          ? current
+        select.value = values.includes(currentValue)
+          ? currentValue
           : (allLabel ? "all" : teams[0]?.id || "");
       }
 
       function refreshTeamSelects() {
+        refreshTrainerTeamSelect();
+
         fillTeamSelect($("#teamFilter"), "Alle Teams", $("#teamFilter").value);
         fillTeamSelect($("#dashboardTeamFilter"), "Alle Teams", $("#dashboardTeamFilter").value);
         fillTeamSelect($("#cleanDashboardTeamFilter"), "Alle Teams", $("#cleanDashboardTeamFilter").value);
         fillTeamSelect($("#newEventTeam"), "", $("#newEventTeam").value);
-        fillTeamSelect($("#importPlayerTeam"), "", $("#importPlayerTeam").value);
 
-        const previousTeam = $("#newPlayerTeam").value;
+        const oldPlayerTeamId = $("#newPlayerTeam").value;
 
-        $("#newPlayerTeam").innerHTML = state.data.teams
-          .map(team => `<option value="${team.id}">${escapeHtml(team.name)}</option>`)
-          .join("");
+        $("#newPlayerTeam").innerHTML = state.data.teams.map(team => `
+          <option value="${team.id}">${escapeHtml(team.name)}</option>
+        `).join("");
 
-        const validTeamIds = state.data.teams.map(team => team.id);
+        const allTeamIds = state.data.teams.map(team => team.id);
 
-        $("#newPlayerTeam").value = validTeamIds.includes(previousTeam)
-          ? previousTeam
+        $("#newPlayerTeam").value = allTeamIds.includes(oldPlayerTeamId)
+          ? oldPlayerTeamId
           : state.data.teams[0]?.id || "";
+
+        $("#importPlayerTeam").innerHTML = state.data.teams.map(team => `
+          <option value="${team.id}">${escapeHtml(team.name)}</option>
+        `).join("");
+
+        const importTeamIds = [...$("#importPlayerTeam").options].map(option => option.value);
+
+        if (!importTeamIds.includes($("#importPlayerTeam").value)) {
+          $("#importPlayerTeam").value = state.data.teams[0]?.id || "";
+        }
 
         if (state.role === "trainer") {
           $("#teamFilter").value = trainerTeamId();
           $("#dashboardTeamFilter").value = trainerTeamId();
           $("#cleanDashboardTeamFilter").value = trainerTeamId();
+          $("#newEventTeam").value = trainerTeamId();
         }
       }
 
       function setRole() {
         state.role = $("#roleSelect").value;
         const isJuko = state.role === "juko";
+
+        $("#trainerTeamSelect").style.display = isJuko ? "none" : "";
 
         $$(".juko-only").forEach(element => {
           element.style.display = isJuko ? "" : "none";
@@ -1001,7 +1122,7 @@
 
         $("#eventsIntro").textContent = isJuko
           ? "Wähle einen Termin und kontrolliere die Anwesenheiten aller Teams."
-          : "Wähle ein Training oder Spiel für dein Team.";
+          : "Wähle ein Training oder Spiel für dein ausgewähltes Team.";
 
         $("#dashboardTitle").textContent = isJuko
           ? "Auswertung Junioren"
@@ -1009,7 +1130,7 @@
 
         $("#dashboardIntro").textContent = isJuko
           ? "Alle erfassten Stati zählen in diese Quote."
-          : "Auswertung aller erfassten Stati für dein Team.";
+          : "Auswertung aller erfassten Stati für dein ausgewähltes Team.";
 
         $("#manageIntro").textContent = isJuko
           ? "Einzelne Spiele oder wiederkehrende Trainings für alle Teams erfassen."
@@ -1017,7 +1138,7 @@
 
         $("#manageNotice").textContent = isJuko
           ? "Als Juniorenkommission kannst du Termine für alle Teams verwalten."
-          : "Als Trainer kannst du Termine nur für dein eigenes Team verwalten.";
+          : "Als Trainer kannst du Termine nur für das oben ausgewählte Trainerteam verwalten.";
 
         refreshTeamSelects();
         renderEvents();
@@ -1063,7 +1184,8 @@
                     <span class="event-name">${escapeHtml(event.title)}</span>
                     <span class="event-meta">
                       ${event.type === "training" ? "Training" : "Spiel"} ·
-                      ${event.time} · ${escapeHtml(event.location)} ·
+                      ${event.time} ·
+                      ${escapeHtml(event.location)} ·
                       ${count} erfasst
                     </span>
                   </span>
@@ -1075,9 +1197,7 @@
           : `<div class="card empty">Keine passenden Termine gefunden.</div>`;
 
         $$(".event-button").forEach(button => {
-          button.addEventListener("click", () => {
-            openAttendance(button.dataset.eventId);
-          });
+          button.addEventListener("click", () => openAttendance(button.dataset.eventId));
         });
       }
 
@@ -1101,6 +1221,12 @@
 
       function renderPlayers() {
         const event = state.data.events.find(item => item.id === state.activeEventId);
+
+        if (!event) {
+          showPanel("events");
+          return;
+        }
+
         const attendance = state.data.attendance[event.id] || {};
         const players = state.data.players.filter(player => player.teamId === event.teamId);
 
@@ -1112,7 +1238,9 @@
                 <div class="player-row">
                   <div>
                     <div class="player-name">${escapeHtml(player.name)}</div>
-                    <div class="player-note">${getStatus(activeStatus)?.label || "Noch nicht erfasst"}</div>
+                    <div class="player-note">
+                      ${getStatus(activeStatus)?.label || "Noch nicht erfasst"}
+                    </div>
                   </div>
 
                   <div class="status-group" aria-label="Status für ${escapeHtml(player.name)}">
@@ -1178,36 +1306,37 @@
 
       function getReportRows(events, teamId, excludedStatuses = []) {
         return state.data.players
-          .filter(player =>
-            allowedTeamIds().includes(player.teamId) &&
-            (teamId === "all" || player.teamId === teamId)
-          )
+          .filter(player => {
+            return (
+              allowedTeamIds().includes(player.teamId) &&
+              (teamId === "all" || player.teamId === teamId)
+            );
+          })
           .map(player => {
             const statusesForPlayer = events
               .filter(event => event.teamId === player.teamId)
               .map(event => state.data.attendance[event.id]?.[player.id])
               .filter(Boolean);
 
-            const excluded = statusesForPlayer.filter(status =>
-              excludedStatuses.includes(status)
-            ).length;
+            const excluded = statusesForPlayer.filter(status => {
+              return excludedStatuses.includes(status);
+            }).length;
 
-            const rated = statusesForPlayer.filter(status =>
-              !excludedStatuses.includes(status)
-            );
+            const ratedStatuses = statusesForPlayer.filter(status => {
+              return !excludedStatuses.includes(status);
+            });
 
-            const present = rated.filter(status => getStatus(status)?.present).length;
-            const missing = rated.filter(status => status === "missing").length;
-
-            const rate = rated.length
-              ? Math.round((present / rated.length) * 100)
+            const present = ratedStatuses.filter(status => getStatus(status)?.present).length;
+            const missing = ratedStatuses.filter(status => status === "missing").length;
+            const rate = ratedStatuses.length
+              ? Math.round((present / ratedStatuses.length) * 100)
               : null;
 
             return {
               player,
               recorded: statusesForPlayer.length,
               excluded,
-              rated: rated.length,
+              rated: ratedStatuses.length,
               present,
               missing,
               rate
@@ -1219,7 +1348,6 @@
         const teamId = $("#dashboardTeamFilter").value;
         const period = $("#dashboardPeriodFilter").value;
         const type = $("#dashboardTypeFilter").value;
-
         const events = getFilteredEvents(teamId, period, type);
         const rows = getReportRows(events, teamId);
 
@@ -1230,7 +1358,6 @@
         const teamId = $("#cleanDashboardTeamFilter").value;
         const period = $("#cleanDashboardPeriodFilter").value;
         const type = $("#cleanDashboardTypeFilter").value;
-
         const events = getFilteredEvents(teamId, period, type);
 
         const rows = getReportRows(
@@ -1247,23 +1374,44 @@
         const totalPresent = rows.reduce((sum, row) => sum + row.present, 0);
         const totalMissing = rows.reduce((sum, row) => sum + row.missing, 0);
         const totalExcluded = rows.reduce((sum, row) => sum + row.excluded, 0);
-
-        const rate = totalRated
-          ? Math.round((totalPresent / totalRated) * 100)
-          : 0;
+        const rate = totalRated ? Math.round((totalPresent / totalRated) * 100) : 0;
 
         $(metricSelector).innerHTML = cleaned
           ? `
-            <div class="card metric"><strong>${events.length}</strong><span>Termine im Filter</span></div>
-            <div class="card metric"><strong>${totalRated}</strong><span>Bewertete Einträge</span></div>
-            <div class="card metric"><strong>${rate}%</strong><span>Bereinigte Quote</span></div>
-            <div class="card metric"><strong>${totalExcluded}</strong><span>Nicht berücksichtigt</span></div>
+            <div class="card metric">
+              <strong>${events.length}</strong>
+              <span>Termine im Filter</span>
+            </div>
+            <div class="card metric">
+              <strong>${totalRated}</strong>
+              <span>Bewertete Einträge</span>
+            </div>
+            <div class="card metric">
+              <strong>${rate}%</strong>
+              <span>Bereinigte Quote</span>
+            </div>
+            <div class="card metric">
+              <strong>${totalExcluded}</strong>
+              <span>Nicht berücksichtigt</span>
+            </div>
           `
           : `
-            <div class="card metric"><strong>${events.length}</strong><span>Termine im Filter</span></div>
-            <div class="card metric"><strong>${totalRated}</strong><span>Erfasste Einträge</span></div>
-            <div class="card metric"><strong>${rate}%</strong><span>Anwesenheitsquote</span></div>
-            <div class="card metric"><strong>${totalMissing}</strong><span>Unentschuldigt</span></div>
+            <div class="card metric">
+              <strong>${events.length}</strong>
+              <span>Termine im Filter</span>
+            </div>
+            <div class="card metric">
+              <strong>${totalRated}</strong>
+              <span>Erfasste Einträge</span>
+            </div>
+            <div class="card metric">
+              <strong>${rate}%</strong>
+              <span>Anwesenheitsquote</span>
+            </div>
+            <div class="card metric">
+              <strong>${totalMissing}</strong>
+              <span>Unentschuldigt</span>
+            </div>
           `;
 
         $(tableSelector).innerHTML = rows
@@ -1279,8 +1427,8 @@
 
             const rateLabel = row.rate === null ? "Keine Daten" : `${row.rate}%`;
 
-            return cleaned
-              ? `
+            if (cleaned) {
+              return `
                 <tr>
                   <td>${escapeHtml(row.player.name)}</td>
                   <td>${escapeHtml(teamName(row.player.teamId))}</td>
@@ -1289,16 +1437,18 @@
                   <td>${row.excluded}</td>
                   <td>${row.missing}</td>
                 </tr>
-              `
-              : `
-                <tr>
-                  <td>${escapeHtml(row.player.name)}</td>
-                  <td>${escapeHtml(teamName(row.player.teamId))}</td>
-                  <td>${row.recorded}</td>
-                  <td><span class="badge ${badgeClass}">${rateLabel}</span></td>
-                  <td>${row.missing}</td>
-                </tr>
               `;
+            }
+
+            return `
+              <tr>
+                <td>${escapeHtml(row.player.name)}</td>
+                <td>${escapeHtml(teamName(row.player.teamId))}</td>
+                <td>${row.recorded}</td>
+                <td><span class="badge ${badgeClass}">${rateLabel}</span></td>
+                <td>${row.missing}</td>
+              </tr>
+            `;
           }).join("");
       }
 
@@ -1317,74 +1467,84 @@
                   <div class="admin-item-meta">
                     ${escapeHtml(teamName(event.teamId))} ·
                     ${event.type === "training" ? "Training" : "Spiel"} ·
-                    ${formatDate(event.date)} · ${event.time} ·
+                    ${formatDate(event.date)} ·
+                    ${event.time} ·
                     ${escapeHtml(event.location)}
                   </div>
                 </div>
 
-                <button class="small-button delete-event" data-event-id="${event.id}">Löschen</button>
+                <button class="small-button delete-event" data-event-id="${event.id}">
+                  Löschen
+                </button>
               </div>
             `).join("")
           : `<div class="empty">Noch keine Termine vorhanden.</div>`;
 
         $$(".delete-event").forEach(button => {
-          button.addEventListener("click", () => {
-            deleteEvent(button.dataset.eventId);
-          });
+          button.addEventListener("click", () => deleteEvent(button.dataset.eventId));
         });
       }
 
       function renderAdmin() {
         refreshTeamSelects();
 
-        $("#teamAdminList").innerHTML = state.data.teams.map(team => {
-          const playerCount = state.data.players.filter(player => player.teamId === team.id).length;
+        $("#teamAdminList").innerHTML = state.data.teams.length
+          ? state.data.teams.map(team => {
+              const playerCount = state.data.players.filter(player => player.teamId === team.id).length;
 
-          return `
-            <div class="admin-item">
-              <div>
-                <div class="admin-item-title">${escapeHtml(team.name)}</div>
-                <div class="admin-item-meta">
-                  Trainer: ${escapeHtml(team.trainer)} · ${playerCount} Spieler
+              return `
+                <div class="admin-item">
+                  <div>
+                    <div class="admin-item-title">${escapeHtml(team.name)}</div>
+                    <div class="admin-item-meta">
+                      Trainer: ${escapeHtml(team.trainer)} · ${playerCount} Spieler
+                    </div>
+                  </div>
+
+                  <button class="small-button delete-team" data-team-id="${team.id}">
+                    Löschen
+                  </button>
                 </div>
+              `;
+            }).join("")
+          : `<div class="empty">Noch keine Teams vorhanden.</div>`;
+
+        $("#playerAdminList").innerHTML = state.data.players.length
+          ? [...state.data.players]
+            .sort((a, b) => a.name.localeCompare(b.name, "de-CH"))
+            .map(player => `
+              <div class="admin-item">
+                <div>
+                  <div class="admin-item-title">${escapeHtml(player.name)}</div>
+                  <div class="admin-item-meta">${escapeHtml(teamName(player.teamId))}</div>
+                </div>
+
+                <button class="small-button delete-player" data-player-id="${player.id}">
+                  Löschen
+                </button>
               </div>
-
-              <button class="small-button delete-team" data-team-id="${team.id}">Löschen</button>
-            </div>
-          `;
-        }).join("") || `<div class="empty">Noch keine Teams vorhanden.</div>`;
-
-        $("#playerAdminList").innerHTML = [...state.data.players]
-          .sort((a, b) => a.name.localeCompare(b.name, "de-CH"))
-          .map(player => `
-            <div class="admin-item">
-              <div>
-                <div class="admin-item-title">${escapeHtml(player.name)}</div>
-                <div class="admin-item-meta">${escapeHtml(teamName(player.teamId))}</div>
-              </div>
-
-              <button class="small-button delete-player" data-player-id="${player.id}">Löschen</button>
-            </div>
-          `).join("") || `<div class="empty">Noch keine Spieler vorhanden.</div>`;
+            `).join("")
+          : `<div class="empty">Noch keine Spieler vorhanden.</div>`;
 
         $$(".delete-team").forEach(button => {
-          button.addEventListener("click", () => {
-            deleteTeam(button.dataset.teamId);
-          });
+          button.addEventListener("click", () => deleteTeam(button.dataset.teamId));
         });
 
         $$(".delete-player").forEach(button => {
-          button.addEventListener("click", () => {
-            deletePlayer(button.dataset.playerId);
-          });
+          button.addEventListener("click", () => deletePlayer(button.dataset.playerId));
         });
       }
 
       function deleteEvent(eventId) {
         const event = state.data.events.find(item => item.id === eventId);
 
-        if (!event || !allowedTeamIds().includes(event.teamId)) return;
-        if (!confirm(`${event.title} vom ${formatDate(event.date)} wirklich löschen?`)) return;
+        if (!event || !allowedTeamIds().includes(event.teamId)) {
+          return;
+        }
+
+        if (!confirm(`${event.title} vom ${formatDate(event.date)} wirklich löschen?`)) {
+          return;
+        }
 
         state.data.events = state.data.events.filter(item => item.id !== eventId);
         delete state.data.attendance[eventId];
@@ -1398,7 +1558,9 @@
       function deletePlayer(playerId) {
         const player = state.data.players.find(item => item.id === playerId);
 
-        if (!player || !confirm(`${player.name} wirklich löschen?`)) return;
+        if (!player || !confirm(`${player.name} wirklich löschen?`)) {
+          return;
+        }
 
         state.data.players = state.data.players.filter(item => item.id !== playerId);
 
@@ -1414,7 +1576,9 @@
       function deleteTeam(teamId) {
         const team = state.data.teams.find(item => item.id === teamId);
 
-        if (!team || !confirm(`${team.name} inklusive Spielern und Terminen wirklich löschen?`)) return;
+        if (!team || !confirm(`${team.name} inklusive Spielern und Terminen wirklich löschen?`)) {
+          return;
+        }
 
         const eventIds = state.data.events
           .filter(event => event.teamId === teamId)
@@ -1427,6 +1591,11 @@
         eventIds.forEach(eventId => {
           delete state.data.attendance[eventId];
         });
+
+        if (state.trainerTeamId === teamId) {
+          state.trainerTeamId = state.data.teams[0]?.id || "";
+          localStorage.setItem(TRAINER_TEAM_KEY, state.trainerTeamId);
+        }
 
         saveData();
         refreshTeamSelects();
@@ -1446,40 +1615,37 @@
       }
 
       function parseCsv(text) {
+        const firstLine = text.split(/\r?\n/).find(line => line.trim()) || "";
+        const separator = firstLine.split(";").length > firstLine.split(",").length ? ";" : ",";
+
         const rows = [];
         let row = [];
         let value = "";
-        let inQuotes = false;
-        let delimiter = ",";
-
-        const firstLine = text.split(/\r?\n/, 1)[0] || "";
-        if (firstLine.split(";").length > firstLine.split(",").length) {
-          delimiter = ";";
-        }
+        let insideQuotes = false;
 
         for (let index = 0; index < text.length; index += 1) {
-          const char = text[index];
-          const next = text[index + 1];
+          const character = text[index];
+          const nextCharacter = text[index + 1];
 
-          if (char === '"' && inQuotes && next === '"') {
+          if (character === '"' && insideQuotes && nextCharacter === '"') {
             value += '"';
             index += 1;
             continue;
           }
 
-          if (char === '"') {
-            inQuotes = !inQuotes;
+          if (character === '"') {
+            insideQuotes = !insideQuotes;
             continue;
           }
 
-          if (!inQuotes && char === delimiter) {
+          if (!insideQuotes && character === separator) {
             row.push(value.trim());
             value = "";
             continue;
           }
 
-          if (!inQuotes && (char === "\n" || char === "\r")) {
-            if (char === "\r" && next === "\n") {
+          if (!insideQuotes && (character === "\n" || character === "\r")) {
+            if (character === "\r" && nextCharacter === "\n") {
               index += 1;
             }
 
@@ -1494,7 +1660,7 @@
             continue;
           }
 
-          value += char;
+          value += character;
         }
 
         row.push(value.trim());
@@ -1513,42 +1679,44 @@
           return state.data.teams.find(team => team.id === fallbackTeamId) || null;
         }
 
-        return state.data.teams.find(team =>
-          normalizeText(team.id) === normalizedValue ||
-          normalizeText(team.name) === normalizedValue
-        ) || null;
+        return state.data.teams.find(team => {
+          return (
+            normalizeText(team.id) === normalizedValue ||
+            normalizeText(team.name) === normalizedValue
+          );
+        }) || null;
       }
 
       function importPlayersFromCsv(file, fallbackTeamId) {
         const reader = new FileReader();
 
         reader.addEventListener("load", () => {
-          const rows = parseCsv(reader.result);
+          const rows = parseCsv(String(reader.result || ""));
 
           if (!rows.length) {
             showToast("Die CSV Datei enthält keine Daten.");
             return;
           }
 
-          const header = rows[0].map(normalizeText);
+          const firstRow = rows[0].map(normalizeText);
 
-          const nameColumn = header.findIndex(value =>
-            ["name", "spieler", "spielername", "vorname und name"].includes(value)
-          );
+          const nameColumn = firstRow.findIndex(value => {
+            return ["name", "spieler", "spielername", "vorname und name"].includes(value);
+          });
 
-          const teamColumn = header.findIndex(value =>
-            ["team", "mannschaft"].includes(value)
-          );
+          const teamColumn = firstRow.findIndex(value => {
+            return ["team", "mannschaft"].includes(value);
+          });
 
           const hasHeader = nameColumn >= 0 || teamColumn >= 0;
-          const startRow = hasHeader ? 1 : 0;
+          const startIndex = hasHeader ? 1 : 0;
           const resolvedNameColumn = nameColumn >= 0 ? nameColumn : 0;
           const resolvedTeamColumn = teamColumn >= 0 ? teamColumn : -1;
 
           let imported = 0;
           let skipped = 0;
 
-          for (let index = startRow; index < rows.length; index += 1) {
+          for (let index = startIndex; index < rows.length; index += 1) {
             const row = rows[index];
             const name = String(row[resolvedNameColumn] || "").trim();
             const teamValue = resolvedTeamColumn >= 0
@@ -1567,12 +1735,14 @@
               continue;
             }
 
-            const exists = state.data.players.some(player =>
-              player.teamId === team.id &&
-              normalizeText(player.name) === normalizeText(name)
-            );
+            const alreadyExists = state.data.players.some(player => {
+              return (
+                player.teamId === team.id &&
+                normalizeText(player.name) === normalizeText(name)
+              );
+            });
 
-            if (exists) {
+            if (alreadyExists) {
               skipped += 1;
               continue;
             }
@@ -1616,7 +1786,9 @@
           Object.entries(state.data.attendance[event.id] || {}).forEach(([playerId, status]) => {
             const player = state.data.players.find(item => item.id === playerId);
 
-            if (!player) return;
+            if (!player) {
+              return;
+            }
 
             const values = [
               player.name,
@@ -1662,6 +1834,34 @@
 
       $("#roleSelect").addEventListener("change", setRole);
 
+      $("#trainerTeamSelect").addEventListener("change", event => {
+        state.trainerTeamId = event.target.value;
+        localStorage.setItem(TRAINER_TEAM_KEY, state.trainerTeamId);
+
+        if (state.role !== "trainer") {
+          return;
+        }
+
+        refreshTeamSelects();
+        renderEvents();
+
+        if ($("#dashboard").classList.contains("active")) {
+          renderDashboard();
+        }
+
+        if ($("#clean-dashboard").classList.contains("active")) {
+          renderCleanDashboard();
+        }
+
+        if ($("#manage").classList.contains("active")) {
+          renderManage();
+        }
+
+        if ($("#attendance").classList.contains("active")) {
+          showPanel("events");
+        }
+      });
+
       $("#teamFilter").addEventListener("change", renderEvents);
       $("#periodFilter").addEventListener("change", renderEvents);
       $("#typeFilter").addEventListener("change", renderEvents);
@@ -1674,12 +1874,18 @@
       $("#cleanDashboardPeriodFilter").addEventListener("change", renderCleanDashboard);
       $("#cleanDashboardTypeFilter").addEventListener("change", renderCleanDashboard);
 
-      $("#backToEvents").addEventListener("click", () => showPanel("events"));
-      $("#newEventMode").addEventListener("change", updateSeriesFields);
-      $("#exportCsv").addEventListener("click", exportCsv);
+      $("#backToEvents").addEventListener("click", () => {
+        showPanel("events");
+      });
 
       $("#markAllPresent").addEventListener("click", () => {
         const event = state.data.events.find(item => item.id === state.activeEventId);
+
+        if (!event) {
+          return;
+        }
+
+        state.data.attendance[event.id] ||= {};
 
         state.data.players
           .filter(player => player.teamId === event.teamId)
@@ -1696,19 +1902,40 @@
         showToast("Anwesenheit wurde gespeichert.");
       });
 
+      $("#newEventMode").addEventListener("change", updateSeriesFields);
+      $("#exportCsv").addEventListener("click", exportCsv);
+
       $("#teamForm").addEventListener("submit", event => {
         event.preventDefault();
 
         const name = $("#newTeamName").value.trim();
         const trainer = $("#newTeamTrainer").value.trim();
 
-        if (!name || !trainer) return;
+        if (!name || !trainer) {
+          return;
+        }
 
-        state.data.teams.push({
+        const exists = state.data.teams.some(team => {
+          return normalizeText(team.name) === normalizeText(name);
+        });
+
+        if (exists) {
+          showToast("Dieses Team existiert bereits.");
+          return;
+        }
+
+        const team = {
           id: createId("team"),
           name,
           trainer
-        });
+        };
+
+        state.data.teams.push(team);
+
+        if (!state.trainerTeamId) {
+          state.trainerTeamId = team.id;
+          localStorage.setItem(TRAINER_TEAM_KEY, team.id);
+        }
 
         saveData();
         event.target.reset();
@@ -1724,12 +1951,16 @@
         const name = $("#newPlayerName").value.trim();
         const teamId = $("#newPlayerTeam").value;
 
-        if (!name || !teamId) return;
+        if (!name || !teamId) {
+          return;
+        }
 
-        const exists = state.data.players.some(player =>
-          player.teamId === teamId &&
-          normalizeText(player.name) === normalizeText(name)
-        );
+        const exists = state.data.players.some(player => {
+          return (
+            player.teamId === teamId &&
+            normalizeText(player.name) === normalizeText(name)
+          );
+        });
 
         if (exists) {
           showToast("Dieser Spieler ist bereits in diesem Team vorhanden.");
@@ -1785,7 +2016,9 @@
           return;
         }
 
-        if (!title || !location || !startDate || !time) return;
+        if (!title || !location || !startDate || !time) {
+          return;
+        }
 
         if (mode === "series" && (!endDate || endDate < startDate)) {
           showToast("Bitte ein gültiges Serienende auswählen.");
