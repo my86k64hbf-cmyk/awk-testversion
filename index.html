@@ -1,0 +1,1851 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b5d3b">
+  <title>AWK</title>
+
+  <style>
+    :root {
+      --green: #0b5d3b;
+      --green-dark: #07442b;
+      --green-soft: #e9f4ee;
+      --bg: #f3f6f4;
+      --card: #fff;
+      --text: #17211c;
+      --muted: #68756e;
+      --border: #dce5df;
+      --danger: #b62e2e;
+      --shadow: 0 8px 25px rgba(16, 43, 29, .08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, input, select { font: inherit; }
+    button { cursor: pointer; border: 0; }
+
+    .app-header {
+      padding: 18px 16px;
+      color: white;
+      background: var(--green);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, .14);
+    }
+
+    .header-inner, main {
+      width: min(1100px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 40px;
+      height: 40px;
+      place-items: center;
+      border-radius: 10px;
+      background: rgba(255,255,255,.16);
+      font-weight: 800;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 2px; font-size: 19px; }
+    h2 { margin-bottom: 5px; font-size: 23px; }
+    h3 { margin-bottom: 14px; font-size: 18px; }
+
+    .brand p {
+      margin: 0;
+      opacity: .8;
+      font-size: 13px;
+    }
+
+    main { padding: 24px 0 48px; }
+
+    .role-select {
+      min-width: 170px;
+      padding: 8px 10px;
+      color: white;
+      border: 1px solid rgba(255,255,255,.35);
+      border-radius: 8px;
+      background: rgba(0,0,0,.14);
+    }
+
+    .role-select option {
+      color: var(--text);
+      background: white;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab {
+      padding: 10px 13px;
+      color: var(--muted);
+      white-space: nowrap;
+      background: transparent;
+      border-bottom: 3px solid transparent;
+      font-weight: 700;
+    }
+
+    .tab.active {
+      color: var(--green);
+      border-color: var(--green);
+    }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .section-head,
+    .attendance-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .section-head p,
+    .event-subtitle {
+      margin-bottom: 0;
+      color: var(--muted);
+    }
+
+    .card {
+      padding: 18px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .filters,
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .form-grid.two-columns {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 10px;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: white;
+    }
+
+    .event-list,
+    .player-list,
+    .admin-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .event-button {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      width: 100%;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      color: var(--text);
+      text-align: left;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+    }
+
+    .event-button:hover {
+      background: #f9fcfa;
+      border-color: #88b49e;
+    }
+
+    .event-date {
+      min-width: 48px;
+      padding-right: 12px;
+      text-align: center;
+      border-right: 1px solid var(--border);
+    }
+
+    .event-date strong {
+      display: block;
+      font-size: 19px;
+    }
+
+    .event-date span {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .event-name,
+    .admin-item-title {
+      font-weight: 750;
+    }
+
+    .event-meta,
+    .admin-item-meta {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .event-arrow {
+      color: var(--green);
+      font-size: 22px;
+    }
+
+    .back-button {
+      padding: 0;
+      margin-bottom: 14px;
+      color: var(--green);
+      background: transparent;
+      font-weight: 700;
+    }
+
+    .event-title {
+      margin-bottom: 5px;
+      font-size: 21px;
+    }
+
+    .attendance-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .button {
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-weight: 700;
+    }
+
+    .button-primary {
+      color: white;
+      background: var(--green);
+    }
+
+    .button-primary:hover { background: var(--green-dark); }
+
+    .button-secondary {
+      color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .player-row {
+      display: grid;
+      grid-template-columns: minmax(160px, 1fr) auto;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .player-row:last-child,
+    .admin-item:last-child {
+      border-bottom: 0;
+    }
+
+    .player-name { font-weight: 720; }
+
+    .player-note {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .status-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 5px;
+    }
+
+    .status-button {
+      min-width: 34px;
+      padding: 7px 8px;
+      color: #3e4d44;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      background: #edf1ee;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .status-button.active {
+      color: white;
+      background: var(--status-color);
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 15px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--dot-color);
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .metric strong {
+      display: block;
+      color: var(--green);
+      font-size: 26px;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      padding: 12px 10px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    td:last-child,
+    th:last-child {
+      text-align: right;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .badge.good {
+      color: #0e6139;
+      background: #dff3e7;
+    }
+
+    .badge.warn {
+      color: #875700;
+      background: #fff0cd;
+    }
+
+    .badge.bad {
+      color: #9e2626;
+      background: #fde2e2;
+    }
+
+    .admin-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.35fr;
+      gap: 18px;
+    }
+
+    .admin-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .small-button {
+      padding: 7px 9px;
+      color: var(--danger);
+      border-radius: 7px;
+      background: #fce8e8;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .notice {
+      margin-bottom: 16px;
+      padding: 12px;
+      color: #15563a;
+      border-radius: 8px;
+      background: #e9f4ee;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .empty {
+      padding: 28px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .toast {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 10;
+      padding: 12px 15px;
+      color: white;
+      border-radius: 9px;
+      background: #22352a;
+      box-shadow: var(--shadow);
+      transform: translateY(90px);
+      transition: transform .2s ease;
+    }
+
+    .toast.show { transform: translateY(0); }
+
+    code {
+      padding: 1px 4px;
+      border-radius: 4px;
+      background: rgba(0,0,0,.08);
+    }
+
+    @media (max-width: 760px) {
+      .filters,
+      .form-grid,
+      .form-grid.two-columns,
+      .dashboard-grid,
+      .admin-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .section-head,
+      .attendance-head {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .status-group,
+      .attendance-actions {
+        justify-content: flex-start;
+      }
+
+      .player-row {
+        grid-template-columns: 1fr;
+      }
+
+      .brand p { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-mark">AWK</div>
+        <div>
+          <h1>AWK</h1>
+          <p>Anwesenheitskontrolle Junioren</p>
+        </div>
+      </div>
+
+      <select class="role-select" id="roleSelect" aria-label="Ansicht auswählen">
+        <option value="trainer">Traineransicht</option>
+        <option value="juko">Juniorenkommission</option>
+      </select>
+    </div>
+  </header>
+
+  <main>
+    <nav class="tabs" aria-label="Hauptnavigation">
+      <button class="tab active" data-tab="events">Termine</button>
+      <button class="tab" data-tab="dashboard">Auswertung</button>
+      <button class="tab" data-tab="clean-dashboard">Bereinigte Auswertung</button>
+      <button class="tab" data-tab="manage">Termine verwalten</button>
+      <button class="tab juko-only" data-tab="admin">Teams und Spieler</button>
+    </nav>
+
+    <section class="panel active" id="events">
+      <div class="section-head">
+        <div>
+          <h2 id="eventsTitle">Meine Termine</h2>
+          <p id="eventsIntro">Wähle ein Training oder Spiel für die Anwesenheitskontrolle.</p>
+        </div>
+      </div>
+
+      <div class="filters card">
+        <label>
+          Team
+          <select id="teamFilter"></select>
+        </label>
+
+        <label>
+          Zeitraum
+          <select id="periodFilter">
+            <option value="all">Alle Termine</option>
+            <option value="upcoming">Kommende Termine</option>
+            <option value="past">Vergangene Termine</option>
+          </select>
+        </label>
+
+        <label>
+          Art
+          <select id="typeFilter">
+            <option value="all">Training und Spiel</option>
+            <option value="training">Nur Trainings</option>
+            <option value="match">Nur Spiele</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="event-list" id="eventList"></div>
+    </section>
+
+    <section class="panel" id="attendance">
+      <button class="back-button" id="backToEvents">‹ Zurück zu den Terminen</button>
+
+      <div class="card">
+        <div class="attendance-head">
+          <div>
+            <h2 class="event-title" id="attendanceTitle"></h2>
+            <p class="event-subtitle" id="attendanceSubtitle"></p>
+          </div>
+
+          <div class="attendance-actions">
+            <button class="button button-secondary" id="markAllPresent">Alle anwesend</button>
+            <button class="button button-primary" id="saveAttendance">Speichern</button>
+          </div>
+        </div>
+
+        <div class="player-list" id="playerList"></div>
+        <div class="legend" id="statusLegend"></div>
+      </div>
+    </section>
+
+    <section class="panel" id="dashboard">
+      <div class="section-head">
+        <div>
+          <h2 id="dashboardTitle">Auswertung</h2>
+          <p id="dashboardIntro">Alle erfassten Stati zählen in diese Quote.</p>
+        </div>
+
+        <button class="button button-secondary juko-only" id="exportCsv">CSV exportieren</button>
+      </div>
+
+      <div class="filters card">
+        <label>
+          Team
+          <select id="dashboardTeamFilter"></select>
+        </label>
+
+        <label>
+          Zeitraum
+          <select id="dashboardPeriodFilter">
+            <option value="all">Gesamte Saison</option>
+            <option value="30">Letzte 30 Tage</option>
+            <option value="90">Letzte 90 Tage</option>
+          </select>
+        </label>
+
+        <label>
+          Anzeige
+          <select id="dashboardTypeFilter">
+            <option value="all">Training und Spiel</option>
+            <option value="training">Nur Trainings</option>
+            <option value="match">Nur Spiele</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="dashboard-grid" id="metricGrid"></div>
+
+      <div class="card table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Spieler</th>
+              <th>Team</th>
+              <th>Erfasste Termine</th>
+              <th>Anwesenheit</th>
+              <th>Unentschuldigt</th>
+            </tr>
+          </thead>
+          <tbody id="reportTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="clean-dashboard">
+      <div class="section-head">
+        <div>
+          <h2>Bereinigte Auswertung</h2>
+          <p>Ferien, Verletzungen und nicht aufgebotene Spieler zählen nicht zur Anwesenheitsquote.</p>
+        </div>
+      </div>
+
+      <div class="notice">
+        Nicht berücksichtigt werden <strong>Ferien</strong>, <strong>Verletzt</strong> und <strong>Nicht aufgeboten</strong>.
+        Anwesend und Zu spät gelten als anwesend.
+      </div>
+
+      <div class="filters card">
+        <label>
+          Team
+          <select id="cleanDashboardTeamFilter"></select>
+        </label>
+
+        <label>
+          Zeitraum
+          <select id="cleanDashboardPeriodFilter">
+            <option value="all">Gesamte Saison</option>
+            <option value="30">Letzte 30 Tage</option>
+            <option value="90">Letzte 90 Tage</option>
+          </select>
+        </label>
+
+        <label>
+          Anzeige
+          <select id="cleanDashboardTypeFilter">
+            <option value="all">Training und Spiel</option>
+            <option value="training">Nur Trainings</option>
+            <option value="match">Nur Spiele</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="dashboard-grid" id="cleanMetricGrid"></div>
+
+      <div class="card table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Spieler</th>
+              <th>Team</th>
+              <th>Bewertete Termine</th>
+              <th>Anwesenheit</th>
+              <th>Nicht berücksichtigt</th>
+              <th>Unentschuldigt</th>
+            </tr>
+          </thead>
+          <tbody id="cleanReportTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="manage">
+      <div class="section-head">
+        <div>
+          <h2>Termine verwalten</h2>
+          <p id="manageIntro">Einzelne Spiele oder wiederkehrende Trainings erfassen.</p>
+        </div>
+      </div>
+
+      <div class="notice" id="manageNotice"></div>
+
+      <div class="card">
+        <form id="eventForm">
+          <div class="form-grid">
+            <label>
+              Team
+              <select id="newEventTeam" required></select>
+            </label>
+
+            <label>
+              Art
+              <select id="newEventType" required>
+                <option value="training">Training</option>
+                <option value="match">Spiel</option>
+              </select>
+            </label>
+
+            <label>
+              Terminart
+              <select id="newEventMode" required>
+                <option value="single">Einzeltermin</option>
+                <option value="series">Wöchentliche Serie</option>
+              </select>
+            </label>
+
+            <label>
+              Titel
+              <input id="newEventTitle" required placeholder="Zum Beispiel Training D9">
+            </label>
+
+            <label>
+              Ort
+              <input id="newEventLocation" required placeholder="Zum Beispiel Sportplatz">
+            </label>
+
+            <label>
+              Startdatum
+              <input id="newEventStartDate" type="date" required>
+            </label>
+
+            <label>
+              Uhrzeit
+              <input id="newEventTime" type="time" required>
+            </label>
+
+            <label class="series-field">
+              Wiederholung
+              <select id="newEventInterval">
+                <option value="1">Jede Woche</option>
+                <option value="2">Alle 2 Wochen</option>
+              </select>
+            </label>
+
+            <label class="series-field">
+              Serienende
+              <input id="newEventEndDate" type="date">
+            </label>
+          </div>
+
+          <button class="button button-primary" type="submit">Termin hinzufügen</button>
+        </form>
+
+        <div class="admin-list" id="eventAdminList" style="margin-top:18px"></div>
+      </div>
+    </section>
+
+    <section class="panel" id="admin">
+      <div class="section-head">
+        <div>
+          <h2>Teams und Spieler</h2>
+          <p>Dieser Bereich ist nur für die Juniorenkommission sichtbar.</p>
+        </div>
+      </div>
+
+      <div class="admin-layout">
+        <div class="card">
+          <h3>Neues Team</h3>
+
+          <form id="teamForm">
+            <div class="form-grid two-columns">
+              <label>
+                Teamname
+                <input id="newTeamName" required placeholder="Zum Beispiel C Junioren">
+              </label>
+
+              <label>
+                Trainer
+                <input id="newTeamTrainer" required placeholder="Vorname Nachname">
+              </label>
+            </div>
+
+            <button class="button button-primary" type="submit">Team hinzufügen</button>
+          </form>
+
+          <div class="admin-list" id="teamAdminList"></div>
+        </div>
+
+        <div class="card">
+          <h3>Neuer Spieler</h3>
+
+          <form id="playerForm">
+            <div class="form-grid two-columns">
+              <label>
+                Vorname und Name
+                <input id="newPlayerName" required placeholder="Vorname Nachname">
+              </label>
+
+              <label>
+                Team
+                <select id="newPlayerTeam" required></select>
+              </label>
+            </div>
+
+            <button class="button button-primary" type="submit">Spieler hinzufügen</button>
+          </form>
+
+          <div class="notice" style="margin-top:18px">
+            <strong>Spieler per CSV importieren</strong><br>
+            Unterstützt werden CSV-Dateien mit den Spalten <code>Name</code> und optional <code>Team</code>.
+            Ohne Teamspalte oder bei leerem Team wird das unten ausgewählte Standard Team verwendet.
+          </div>
+
+          <form id="playerImportForm">
+            <div class="form-grid two-columns">
+              <label>
+                Standard Team
+                <select id="importPlayerTeam" required></select>
+              </label>
+
+              <label>
+                CSV Datei
+                <input id="playerCsvFile" type="file" accept=".csv,text/csv" required>
+              </label>
+            </div>
+
+            <button class="button button-secondary" type="submit">Spieler importieren</button>
+          </form>
+
+          <div class="admin-list" id="playerAdminList"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    (() => {
+      const STORAGE_KEY = "awk-anwesenheit-v5";
+
+      const statuses = [
+        { id: "present", label: "Anwesend", short: "A", color: "#198754", present: true },
+        { id: "excused", label: "Entschuldigt", short: "E", color: "#d58900", present: false },
+        { id: "injured", label: "Verletzt", short: "V", color: "#6c55ad", present: false },
+        { id: "sick", label: "Krank", short: "K", color: "#bd4770", present: false },
+        { id: "missing", label: "Unentschuldigt", short: "U", color: "#d33b3b", present: false },
+        { id: "holiday", label: "Ferien", short: "F", color: "#0d8491", present: false },
+        { id: "notCalled", label: "Nicht aufgeboten", short: "N", color: "#68756e", present: false },
+        { id: "late", label: "Zu spät", short: "Z", color: "#1575b7", present: true }
+      ];
+
+      const defaultData = {
+        teams: [
+          { id: "d9", name: "D9 Junioren", trainer: "Marco Keller" },
+          { id: "e", name: "E Junioren", trainer: "Sandro Meier" }
+        ],
+        players: [
+          { id: "p1", teamId: "d9", name: "Liam Frei" },
+          { id: "p2", teamId: "d9", name: "Noah Müller" },
+          { id: "p3", teamId: "d9", name: "Milan Studer" },
+          { id: "p4", teamId: "d9", name: "Finn Weber" },
+          { id: "p5", teamId: "e", name: "Elia Huber" },
+          { id: "p6", teamId: "e", name: "Luca Baumann" }
+        ],
+        events: [],
+        attendance: {}
+      };
+
+      const $ = selector => document.querySelector(selector);
+      const $$ = selector => [...document.querySelectorAll(selector)];
+
+      const state = {
+        role: "trainer",
+        activeEventId: null,
+        data: loadData()
+      };
+
+      function loadData() {
+        try {
+          return JSON.parse(localStorage.getItem(STORAGE_KEY)) || structuredClone(defaultData);
+        } catch {
+          return structuredClone(defaultData);
+        }
+      }
+
+      function saveData() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data));
+      }
+
+      function createId(prefix) {
+        return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      }
+
+      function escapeHtml(value) {
+        const element = document.createElement("span");
+        element.textContent = value;
+        return element.innerHTML;
+      }
+
+      function normalizeText(value) {
+        return String(value || "")
+          .replace(/^\uFEFF/, "")
+          .trim()
+          .toLocaleLowerCase("de-CH")
+          .replace(/\s+/g, " ");
+      }
+
+      function currentDate() {
+        return new Date().toISOString().slice(0, 10);
+      }
+
+      function formatDate(date) {
+        return new Intl.DateTimeFormat("de-CH", {
+          weekday: "short",
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric"
+        }).format(new Date(`${date}T12:00:00`));
+      }
+
+      function getStatus(statusId) {
+        return statuses.find(status => status.id === statusId);
+      }
+
+      function teamName(teamId) {
+        return state.data.teams.find(team => team.id === teamId)?.name || "Ohne Team";
+      }
+
+      function trainerTeamId() {
+        return state.data.teams[0]?.id || "";
+      }
+
+      function allowedTeamIds() {
+        return state.role === "juko"
+          ? state.data.teams.map(team => team.id)
+          : [trainerTeamId()];
+      }
+
+      function fillTeamSelect(select, allLabel = "", selected = "") {
+        const current = selected || select.value;
+        const teams = state.data.teams.filter(team => allowedTeamIds().includes(team.id));
+
+        select.innerHTML =
+          (allLabel ? `<option value="all">${allLabel}</option>` : "") +
+          teams.map(team =>
+            `<option value="${team.id}">${escapeHtml(team.name)}</option>`
+          ).join("");
+
+        const values = [...select.options].map(option => option.value);
+
+        select.value = values.includes(current)
+          ? current
+          : (allLabel ? "all" : teams[0]?.id || "");
+      }
+
+      function refreshTeamSelects() {
+        fillTeamSelect($("#teamFilter"), "Alle Teams", $("#teamFilter").value);
+        fillTeamSelect($("#dashboardTeamFilter"), "Alle Teams", $("#dashboardTeamFilter").value);
+        fillTeamSelect($("#cleanDashboardTeamFilter"), "Alle Teams", $("#cleanDashboardTeamFilter").value);
+        fillTeamSelect($("#newEventTeam"), "", $("#newEventTeam").value);
+        fillTeamSelect($("#importPlayerTeam"), "", $("#importPlayerTeam").value);
+
+        const previousTeam = $("#newPlayerTeam").value;
+
+        $("#newPlayerTeam").innerHTML = state.data.teams
+          .map(team => `<option value="${team.id}">${escapeHtml(team.name)}</option>`)
+          .join("");
+
+        const validTeamIds = state.data.teams.map(team => team.id);
+
+        $("#newPlayerTeam").value = validTeamIds.includes(previousTeam)
+          ? previousTeam
+          : state.data.teams[0]?.id || "";
+
+        if (state.role === "trainer") {
+          $("#teamFilter").value = trainerTeamId();
+          $("#dashboardTeamFilter").value = trainerTeamId();
+          $("#cleanDashboardTeamFilter").value = trainerTeamId();
+        }
+      }
+
+      function setRole() {
+        state.role = $("#roleSelect").value;
+        const isJuko = state.role === "juko";
+
+        $$(".juko-only").forEach(element => {
+          element.style.display = isJuko ? "" : "none";
+        });
+
+        $("#eventsTitle").textContent = isJuko ? "Alle Termine" : "Meine Termine";
+
+        $("#eventsIntro").textContent = isJuko
+          ? "Wähle einen Termin und kontrolliere die Anwesenheiten aller Teams."
+          : "Wähle ein Training oder Spiel für dein Team.";
+
+        $("#dashboardTitle").textContent = isJuko
+          ? "Auswertung Junioren"
+          : "Auswertung meines Teams";
+
+        $("#dashboardIntro").textContent = isJuko
+          ? "Alle erfassten Stati zählen in diese Quote."
+          : "Auswertung aller erfassten Stati für dein Team.";
+
+        $("#manageIntro").textContent = isJuko
+          ? "Einzelne Spiele oder wiederkehrende Trainings für alle Teams erfassen."
+          : "Hier kannst du einzelne Spiele oder wiederkehrende Trainings für dein Team erfassen.";
+
+        $("#manageNotice").textContent = isJuko
+          ? "Als Juniorenkommission kannst du Termine für alle Teams verwalten."
+          : "Als Trainer kannst du Termine nur für dein eigenes Team verwalten.";
+
+        refreshTeamSelects();
+        renderEvents();
+
+        if (!isJuko && $("#admin").classList.contains("active")) {
+          showPanel("events");
+        }
+      }
+
+      function renderEvents() {
+        const selectedTeam = $("#teamFilter").value;
+        const selectedPeriod = $("#periodFilter").value;
+        const selectedType = $("#typeFilter").value;
+
+        const events = state.data.events
+          .filter(event => {
+            const roleMatch = allowedTeamIds().includes(event.teamId);
+            const teamMatch = selectedTeam === "all" || event.teamId === selectedTeam;
+            const typeMatch = selectedType === "all" || event.type === selectedType;
+
+            const periodMatch =
+              selectedPeriod === "all" ||
+              (selectedPeriod === "upcoming" && event.date >= currentDate()) ||
+              (selectedPeriod === "past" && event.date < currentDate());
+
+            return roleMatch && teamMatch && typeMatch && periodMatch;
+          })
+          .sort((a, b) => `${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`));
+
+        $("#eventList").innerHTML = events.length
+          ? events.map(event => {
+              const date = new Date(`${event.date}T12:00:00`);
+              const count = Object.keys(state.data.attendance[event.id] || {}).length;
+
+              return `
+                <button class="event-button" data-event-id="${event.id}">
+                  <span class="event-date">
+                    <strong>${String(date.getDate()).padStart(2, "0")}</strong>
+                    <span>${date.toLocaleDateString("de-CH", { month: "short" })}</span>
+                  </span>
+
+                  <span>
+                    <span class="event-name">${escapeHtml(event.title)}</span>
+                    <span class="event-meta">
+                      ${event.type === "training" ? "Training" : "Spiel"} ·
+                      ${event.time} · ${escapeHtml(event.location)} ·
+                      ${count} erfasst
+                    </span>
+                  </span>
+
+                  <span class="event-arrow">›</span>
+                </button>
+              `;
+            }).join("")
+          : `<div class="card empty">Keine passenden Termine gefunden.</div>`;
+
+        $$(".event-button").forEach(button => {
+          button.addEventListener("click", () => {
+            openAttendance(button.dataset.eventId);
+          });
+        });
+      }
+
+      function openAttendance(eventId) {
+        const event = state.data.events.find(item => item.id === eventId);
+
+        if (!event || !allowedTeamIds().includes(event.teamId)) {
+          return;
+        }
+
+        state.activeEventId = eventId;
+        state.data.attendance[eventId] ||= {};
+
+        $("#attendanceTitle").textContent = event.title;
+        $("#attendanceSubtitle").textContent =
+          `${formatDate(event.date)} · ${event.time} · ${teamName(event.teamId)} · ${event.location}`;
+
+        renderPlayers();
+        showPanel("attendance");
+      }
+
+      function renderPlayers() {
+        const event = state.data.events.find(item => item.id === state.activeEventId);
+        const attendance = state.data.attendance[event.id] || {};
+        const players = state.data.players.filter(player => player.teamId === event.teamId);
+
+        $("#playerList").innerHTML = players.length
+          ? players.map(player => {
+              const activeStatus = attendance[player.id] || "";
+
+              return `
+                <div class="player-row">
+                  <div>
+                    <div class="player-name">${escapeHtml(player.name)}</div>
+                    <div class="player-note">${getStatus(activeStatus)?.label || "Noch nicht erfasst"}</div>
+                  </div>
+
+                  <div class="status-group" aria-label="Status für ${escapeHtml(player.name)}">
+                    ${statuses.map(status => `
+                      <button
+                        class="status-button ${activeStatus === status.id ? "active" : ""}"
+                        style="--status-color:${status.color}"
+                        data-player-id="${player.id}"
+                        data-status="${status.id}"
+                        title="${status.label}"
+                      >${status.short}</button>
+                    `).join("")}
+                  </div>
+                </div>
+              `;
+            }).join("")
+          : `<div class="empty">Für dieses Team sind noch keine Spieler erfasst.</div>`;
+
+        $("#statusLegend").innerHTML = statuses.map(status => `
+          <span>
+            <i class="dot" style="--dot-color:${status.color}"></i>
+            ${status.short} ${status.label}
+          </span>
+        `).join("");
+
+        $$(".status-button").forEach(button => {
+          button.addEventListener("click", () => {
+            state.data.attendance[state.activeEventId][button.dataset.playerId] = button.dataset.status;
+            renderPlayers();
+          });
+        });
+      }
+
+      function showPanel(id) {
+        $$(".panel").forEach(panel => {
+          panel.classList.toggle("active", panel.id === id);
+        });
+
+        $$(".tab").forEach(tab => {
+          tab.classList.toggle("active", tab.dataset.tab === id);
+        });
+
+        if (id === "dashboard") renderDashboard();
+        if (id === "clean-dashboard") renderCleanDashboard();
+        if (id === "manage") renderManage();
+        if (id === "admin") renderAdmin();
+      }
+
+      function getFilteredEvents(teamId, period, type) {
+        const cutoff = period === "all"
+          ? null
+          : new Date(Date.now() - Number(period) * 86400000);
+
+        return state.data.events.filter(event => {
+          const roleMatch = allowedTeamIds().includes(event.teamId);
+          const teamMatch = teamId === "all" || event.teamId === teamId;
+          const typeMatch = type === "all" || event.type === type;
+          const dateMatch = !cutoff || new Date(`${event.date}T12:00:00`) >= cutoff;
+
+          return roleMatch && teamMatch && typeMatch && dateMatch;
+        });
+      }
+
+      function getReportRows(events, teamId, excludedStatuses = []) {
+        return state.data.players
+          .filter(player =>
+            allowedTeamIds().includes(player.teamId) &&
+            (teamId === "all" || player.teamId === teamId)
+          )
+          .map(player => {
+            const statusesForPlayer = events
+              .filter(event => event.teamId === player.teamId)
+              .map(event => state.data.attendance[event.id]?.[player.id])
+              .filter(Boolean);
+
+            const excluded = statusesForPlayer.filter(status =>
+              excludedStatuses.includes(status)
+            ).length;
+
+            const rated = statusesForPlayer.filter(status =>
+              !excludedStatuses.includes(status)
+            );
+
+            const present = rated.filter(status => getStatus(status)?.present).length;
+            const missing = rated.filter(status => status === "missing").length;
+
+            const rate = rated.length
+              ? Math.round((present / rated.length) * 100)
+              : null;
+
+            return {
+              player,
+              recorded: statusesForPlayer.length,
+              excluded,
+              rated: rated.length,
+              present,
+              missing,
+              rate
+            };
+          });
+      }
+
+      function renderDashboard() {
+        const teamId = $("#dashboardTeamFilter").value;
+        const period = $("#dashboardPeriodFilter").value;
+        const type = $("#dashboardTypeFilter").value;
+
+        const events = getFilteredEvents(teamId, period, type);
+        const rows = getReportRows(events, teamId);
+
+        renderDashboardContent("#metricGrid", "#reportTable", events, rows, false);
+      }
+
+      function renderCleanDashboard() {
+        const teamId = $("#cleanDashboardTeamFilter").value;
+        const period = $("#cleanDashboardPeriodFilter").value;
+        const type = $("#cleanDashboardTypeFilter").value;
+
+        const events = getFilteredEvents(teamId, period, type);
+
+        const rows = getReportRows(
+          events,
+          teamId,
+          ["holiday", "injured", "notCalled"]
+        );
+
+        renderDashboardContent("#cleanMetricGrid", "#cleanReportTable", events, rows, true);
+      }
+
+      function renderDashboardContent(metricSelector, tableSelector, events, rows, cleaned) {
+        const totalRated = rows.reduce((sum, row) => sum + row.rated, 0);
+        const totalPresent = rows.reduce((sum, row) => sum + row.present, 0);
+        const totalMissing = rows.reduce((sum, row) => sum + row.missing, 0);
+        const totalExcluded = rows.reduce((sum, row) => sum + row.excluded, 0);
+
+        const rate = totalRated
+          ? Math.round((totalPresent / totalRated) * 100)
+          : 0;
+
+        $(metricSelector).innerHTML = cleaned
+          ? `
+            <div class="card metric"><strong>${events.length}</strong><span>Termine im Filter</span></div>
+            <div class="card metric"><strong>${totalRated}</strong><span>Bewertete Einträge</span></div>
+            <div class="card metric"><strong>${rate}%</strong><span>Bereinigte Quote</span></div>
+            <div class="card metric"><strong>${totalExcluded}</strong><span>Nicht berücksichtigt</span></div>
+          `
+          : `
+            <div class="card metric"><strong>${events.length}</strong><span>Termine im Filter</span></div>
+            <div class="card metric"><strong>${totalRated}</strong><span>Erfasste Einträge</span></div>
+            <div class="card metric"><strong>${rate}%</strong><span>Anwesenheitsquote</span></div>
+            <div class="card metric"><strong>${totalMissing}</strong><span>Unentschuldigt</span></div>
+          `;
+
+        $(tableSelector).innerHTML = rows
+          .sort((a, b) => (a.rate ?? 101) - (b.rate ?? 101))
+          .map(row => {
+            const badgeClass = row.rate === null
+              ? "warn"
+              : row.rate >= 85
+                ? "good"
+                : row.rate >= 70
+                  ? "warn"
+                  : "bad";
+
+            const rateLabel = row.rate === null ? "Keine Daten" : `${row.rate}%`;
+
+            return cleaned
+              ? `
+                <tr>
+                  <td>${escapeHtml(row.player.name)}</td>
+                  <td>${escapeHtml(teamName(row.player.teamId))}</td>
+                  <td>${row.rated}</td>
+                  <td><span class="badge ${badgeClass}">${rateLabel}</span></td>
+                  <td>${row.excluded}</td>
+                  <td>${row.missing}</td>
+                </tr>
+              `
+              : `
+                <tr>
+                  <td>${escapeHtml(row.player.name)}</td>
+                  <td>${escapeHtml(teamName(row.player.teamId))}</td>
+                  <td>${row.recorded}</td>
+                  <td><span class="badge ${badgeClass}">${rateLabel}</span></td>
+                  <td>${row.missing}</td>
+                </tr>
+              `;
+          }).join("");
+      }
+
+      function renderManage() {
+        refreshTeamSelects();
+
+        const events = state.data.events
+          .filter(event => allowedTeamIds().includes(event.teamId))
+          .sort((a, b) => `${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`));
+
+        $("#eventAdminList").innerHTML = events.length
+          ? events.map(event => `
+              <div class="admin-item">
+                <div>
+                  <div class="admin-item-title">${escapeHtml(event.title)}</div>
+                  <div class="admin-item-meta">
+                    ${escapeHtml(teamName(event.teamId))} ·
+                    ${event.type === "training" ? "Training" : "Spiel"} ·
+                    ${formatDate(event.date)} · ${event.time} ·
+                    ${escapeHtml(event.location)}
+                  </div>
+                </div>
+
+                <button class="small-button delete-event" data-event-id="${event.id}">Löschen</button>
+              </div>
+            `).join("")
+          : `<div class="empty">Noch keine Termine vorhanden.</div>`;
+
+        $$(".delete-event").forEach(button => {
+          button.addEventListener("click", () => {
+            deleteEvent(button.dataset.eventId);
+          });
+        });
+      }
+
+      function renderAdmin() {
+        refreshTeamSelects();
+
+        $("#teamAdminList").innerHTML = state.data.teams.map(team => {
+          const playerCount = state.data.players.filter(player => player.teamId === team.id).length;
+
+          return `
+            <div class="admin-item">
+              <div>
+                <div class="admin-item-title">${escapeHtml(team.name)}</div>
+                <div class="admin-item-meta">
+                  Trainer: ${escapeHtml(team.trainer)} · ${playerCount} Spieler
+                </div>
+              </div>
+
+              <button class="small-button delete-team" data-team-id="${team.id}">Löschen</button>
+            </div>
+          `;
+        }).join("") || `<div class="empty">Noch keine Teams vorhanden.</div>`;
+
+        $("#playerAdminList").innerHTML = [...state.data.players]
+          .sort((a, b) => a.name.localeCompare(b.name, "de-CH"))
+          .map(player => `
+            <div class="admin-item">
+              <div>
+                <div class="admin-item-title">${escapeHtml(player.name)}</div>
+                <div class="admin-item-meta">${escapeHtml(teamName(player.teamId))}</div>
+              </div>
+
+              <button class="small-button delete-player" data-player-id="${player.id}">Löschen</button>
+            </div>
+          `).join("") || `<div class="empty">Noch keine Spieler vorhanden.</div>`;
+
+        $$(".delete-team").forEach(button => {
+          button.addEventListener("click", () => {
+            deleteTeam(button.dataset.teamId);
+          });
+        });
+
+        $$(".delete-player").forEach(button => {
+          button.addEventListener("click", () => {
+            deletePlayer(button.dataset.playerId);
+          });
+        });
+      }
+
+      function deleteEvent(eventId) {
+        const event = state.data.events.find(item => item.id === eventId);
+
+        if (!event || !allowedTeamIds().includes(event.teamId)) return;
+        if (!confirm(`${event.title} vom ${formatDate(event.date)} wirklich löschen?`)) return;
+
+        state.data.events = state.data.events.filter(item => item.id !== eventId);
+        delete state.data.attendance[eventId];
+
+        saveData();
+        renderManage();
+        renderEvents();
+        showToast("Termin wurde gelöscht.");
+      }
+
+      function deletePlayer(playerId) {
+        const player = state.data.players.find(item => item.id === playerId);
+
+        if (!player || !confirm(`${player.name} wirklich löschen?`)) return;
+
+        state.data.players = state.data.players.filter(item => item.id !== playerId);
+
+        Object.values(state.data.attendance).forEach(attendance => {
+          delete attendance[playerId];
+        });
+
+        saveData();
+        renderAdmin();
+        showToast("Spieler wurde gelöscht.");
+      }
+
+      function deleteTeam(teamId) {
+        const team = state.data.teams.find(item => item.id === teamId);
+
+        if (!team || !confirm(`${team.name} inklusive Spielern und Terminen wirklich löschen?`)) return;
+
+        const eventIds = state.data.events
+          .filter(event => event.teamId === teamId)
+          .map(event => event.id);
+
+        state.data.teams = state.data.teams.filter(item => item.id !== teamId);
+        state.data.players = state.data.players.filter(player => player.teamId !== teamId);
+        state.data.events = state.data.events.filter(event => event.teamId !== teamId);
+
+        eventIds.forEach(eventId => {
+          delete state.data.attendance[eventId];
+        });
+
+        saveData();
+        refreshTeamSelects();
+        renderAdmin();
+        renderEvents();
+        showToast("Team wurde gelöscht.");
+      }
+
+      function updateSeriesFields() {
+        const isSeries = $("#newEventMode").value === "series";
+
+        $$(".series-field").forEach(field => {
+          field.style.display = isSeries ? "grid" : "none";
+        });
+
+        $("#newEventEndDate").required = isSeries;
+      }
+
+      function parseCsv(text) {
+        const rows = [];
+        let row = [];
+        let value = "";
+        let inQuotes = false;
+        let delimiter = ",";
+
+        const firstLine = text.split(/\r?\n/, 1)[0] || "";
+        if (firstLine.split(";").length > firstLine.split(",").length) {
+          delimiter = ";";
+        }
+
+        for (let index = 0; index < text.length; index += 1) {
+          const char = text[index];
+          const next = text[index + 1];
+
+          if (char === '"' && inQuotes && next === '"') {
+            value += '"';
+            index += 1;
+            continue;
+          }
+
+          if (char === '"') {
+            inQuotes = !inQuotes;
+            continue;
+          }
+
+          if (!inQuotes && char === delimiter) {
+            row.push(value.trim());
+            value = "";
+            continue;
+          }
+
+          if (!inQuotes && (char === "\n" || char === "\r")) {
+            if (char === "\r" && next === "\n") {
+              index += 1;
+            }
+
+            row.push(value.trim());
+
+            if (row.some(cell => cell !== "")) {
+              rows.push(row);
+            }
+
+            row = [];
+            value = "";
+            continue;
+          }
+
+          value += char;
+        }
+
+        row.push(value.trim());
+
+        if (row.some(cell => cell !== "")) {
+          rows.push(row);
+        }
+
+        return rows;
+      }
+
+      function findTeamByValue(value, fallbackTeamId) {
+        const normalizedValue = normalizeText(value);
+
+        if (!normalizedValue) {
+          return state.data.teams.find(team => team.id === fallbackTeamId) || null;
+        }
+
+        return state.data.teams.find(team =>
+          normalizeText(team.id) === normalizedValue ||
+          normalizeText(team.name) === normalizedValue
+        ) || null;
+      }
+
+      function importPlayersFromCsv(file, fallbackTeamId) {
+        const reader = new FileReader();
+
+        reader.addEventListener("load", () => {
+          const rows = parseCsv(reader.result);
+
+          if (!rows.length) {
+            showToast("Die CSV Datei enthält keine Daten.");
+            return;
+          }
+
+          const header = rows[0].map(normalizeText);
+
+          const nameColumn = header.findIndex(value =>
+            ["name", "spieler", "spielername", "vorname und name"].includes(value)
+          );
+
+          const teamColumn = header.findIndex(value =>
+            ["team", "mannschaft"].includes(value)
+          );
+
+          const hasHeader = nameColumn >= 0 || teamColumn >= 0;
+          const startRow = hasHeader ? 1 : 0;
+          const resolvedNameColumn = nameColumn >= 0 ? nameColumn : 0;
+          const resolvedTeamColumn = teamColumn >= 0 ? teamColumn : -1;
+
+          let imported = 0;
+          let skipped = 0;
+
+          for (let index = startRow; index < rows.length; index += 1) {
+            const row = rows[index];
+            const name = String(row[resolvedNameColumn] || "").trim();
+            const teamValue = resolvedTeamColumn >= 0
+              ? String(row[resolvedTeamColumn] || "").trim()
+              : "";
+
+            if (!name) {
+              skipped += 1;
+              continue;
+            }
+
+            const team = findTeamByValue(teamValue, fallbackTeamId);
+
+            if (!team) {
+              skipped += 1;
+              continue;
+            }
+
+            const exists = state.data.players.some(player =>
+              player.teamId === team.id &&
+              normalizeText(player.name) === normalizeText(name)
+            );
+
+            if (exists) {
+              skipped += 1;
+              continue;
+            }
+
+            state.data.players.push({
+              id: createId("player"),
+              teamId: team.id,
+              name
+            });
+
+            imported += 1;
+          }
+
+          if (!imported) {
+            showToast("Keine Spieler importiert. Namen und Teams bitte prüfen.");
+            return;
+          }
+
+          saveData();
+          $("#playerCsvFile").value = "";
+          renderAdmin();
+
+          showToast(
+            skipped
+              ? `${imported} Spieler importiert. ${skipped} Einträge übersprungen.`
+              : `${imported} Spieler wurden importiert.`
+          );
+        });
+
+        reader.addEventListener("error", () => {
+          showToast("Die CSV Datei konnte nicht gelesen werden.");
+        });
+
+        reader.readAsText(file, "UTF-8");
+      }
+
+      function exportCsv() {
+        const lines = ["Spieler,Team,Termin,Datum,Art,Status"];
+
+        state.data.events.forEach(event => {
+          Object.entries(state.data.attendance[event.id] || {}).forEach(([playerId, status]) => {
+            const player = state.data.players.find(item => item.id === playerId);
+
+            if (!player) return;
+
+            const values = [
+              player.name,
+              teamName(event.teamId),
+              event.title,
+              event.date,
+              event.type === "training" ? "Training" : "Spiel",
+              getStatus(status)?.label || ""
+            ];
+
+            lines.push(
+              values.map(value => `"${String(value).replaceAll('"', '""')}"`).join(",")
+            );
+          });
+        });
+
+        const blob = new Blob([lines.join("\n")], {
+          type: "text/csv;charset=utf-8;"
+        });
+
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+
+        link.href = url;
+        link.download = "awk-anwesenheit.csv";
+        link.click();
+
+        URL.revokeObjectURL(url);
+      }
+
+      let toastTimer;
+
+      function showToast(message) {
+        $("#toast").textContent = message;
+        $("#toast").classList.add("show");
+
+        clearTimeout(toastTimer);
+
+        toastTimer = setTimeout(() => {
+          $("#toast").classList.remove("show");
+        }, 2400);
+      }
+
+      $("#roleSelect").addEventListener("change", setRole);
+
+      $("#teamFilter").addEventListener("change", renderEvents);
+      $("#periodFilter").addEventListener("change", renderEvents);
+      $("#typeFilter").addEventListener("change", renderEvents);
+
+      $("#dashboardTeamFilter").addEventListener("change", renderDashboard);
+      $("#dashboardPeriodFilter").addEventListener("change", renderDashboard);
+      $("#dashboardTypeFilter").addEventListener("change", renderDashboard);
+
+      $("#cleanDashboardTeamFilter").addEventListener("change", renderCleanDashboard);
+      $("#cleanDashboardPeriodFilter").addEventListener("change", renderCleanDashboard);
+      $("#cleanDashboardTypeFilter").addEventListener("change", renderCleanDashboard);
+
+      $("#backToEvents").addEventListener("click", () => showPanel("events"));
+      $("#newEventMode").addEventListener("change", updateSeriesFields);
+      $("#exportCsv").addEventListener("click", exportCsv);
+
+      $("#markAllPresent").addEventListener("click", () => {
+        const event = state.data.events.find(item => item.id === state.activeEventId);
+
+        state.data.players
+          .filter(player => player.teamId === event.teamId)
+          .forEach(player => {
+            state.data.attendance[event.id][player.id] = "present";
+          });
+
+        renderPlayers();
+      });
+
+      $("#saveAttendance").addEventListener("click", () => {
+        saveData();
+        renderEvents();
+        showToast("Anwesenheit wurde gespeichert.");
+      });
+
+      $("#teamForm").addEventListener("submit", event => {
+        event.preventDefault();
+
+        const name = $("#newTeamName").value.trim();
+        const trainer = $("#newTeamTrainer").value.trim();
+
+        if (!name || !trainer) return;
+
+        state.data.teams.push({
+          id: createId("team"),
+          name,
+          trainer
+        });
+
+        saveData();
+        event.target.reset();
+        refreshTeamSelects();
+        renderAdmin();
+        renderEvents();
+        showToast("Team wurde hinzugefügt.");
+      });
+
+      $("#playerForm").addEventListener("submit", event => {
+        event.preventDefault();
+
+        const name = $("#newPlayerName").value.trim();
+        const teamId = $("#newPlayerTeam").value;
+
+        if (!name || !teamId) return;
+
+        const exists = state.data.players.some(player =>
+          player.teamId === teamId &&
+          normalizeText(player.name) === normalizeText(name)
+        );
+
+        if (exists) {
+          showToast("Dieser Spieler ist bereits in diesem Team vorhanden.");
+          return;
+        }
+
+        state.data.players.push({
+          id: createId("player"),
+          teamId,
+          name
+        });
+
+        saveData();
+        $("#newPlayerName").value = "";
+        renderAdmin();
+        showToast("Spieler wurde hinzugefügt.");
+      });
+
+      $("#playerImportForm").addEventListener("submit", event => {
+        event.preventDefault();
+
+        const file = $("#playerCsvFile").files[0];
+        const fallbackTeamId = $("#importPlayerTeam").value;
+
+        if (!file) {
+          showToast("Bitte zuerst eine CSV Datei auswählen.");
+          return;
+        }
+
+        if (!fallbackTeamId) {
+          showToast("Bitte ein Standard Team auswählen.");
+          return;
+        }
+
+        importPlayersFromCsv(file, fallbackTeamId);
+      });
+
+      $("#eventForm").addEventListener("submit", event => {
+        event.preventDefault();
+
+        const teamId = $("#newEventTeam").value;
+        const type = $("#newEventType").value;
+        const mode = $("#newEventMode").value;
+        const title = $("#newEventTitle").value.trim();
+        const location = $("#newEventLocation").value.trim();
+        const startDate = $("#newEventStartDate").value;
+        const time = $("#newEventTime").value;
+        const endDate = $("#newEventEndDate").value;
+        const interval = Number($("#newEventInterval").value);
+
+        if (!allowedTeamIds().includes(teamId)) {
+          showToast("Du hast keine Berechtigung für dieses Team.");
+          return;
+        }
+
+        if (!title || !location || !startDate || !time) return;
+
+        if (mode === "series" && (!endDate || endDate < startDate)) {
+          showToast("Bitte ein gültiges Serienende auswählen.");
+          return;
+        }
+
+        const dates = [];
+
+        if (mode === "single") {
+          dates.push(startDate);
+        } else {
+          const date = new Date(`${startDate}T12:00:00`);
+          const finalDate = new Date(`${endDate}T12:00:00`);
+
+          while (date <= finalDate && dates.length < 100) {
+            dates.push(date.toISOString().slice(0, 10));
+            date.setDate(date.getDate() + interval * 7);
+          }
+        }
+
+        dates.forEach(date => {
+          state.data.events.push({
+            id: createId("event"),
+            teamId,
+            type,
+            title,
+            location,
+            date,
+            time
+          });
+        });
+
+        saveData();
+        event.target.reset();
+        $("#newEventMode").value = "single";
+        updateSeriesFields();
+        renderManage();
+        renderEvents();
+
+        showToast(
+          dates.length === 1
+            ? "Termin wurde hinzugefügt."
+            : `${dates.length} Termine wurden als Serie erstellt.`
+        );
+      });
+
+      $$(".tab").forEach(tab => {
+        tab.addEventListener("click", () => {
+          if (tab.classList.contains("juko-only") && state.role !== "juko") {
+            return;
+          }
+
+          showPanel(tab.dataset.tab);
+        });
+      });
+
+      refreshTeamSelects();
+      updateSeriesFields();
+      setRole();
+    })();
+  </script>
+</body>
+</html>
