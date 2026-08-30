@@ -3,21 +3,21 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0b5d3b">
+  <meta name="theme-color" content="#1565c0">
   <title>AWK</title>
 
   <style>
     :root {
-      --green: #0b5d3b;
-      --green-dark: #07442b;
-      --green-soft: #e9f4ee;
-      --background: #f3f6f4;
+      --blue: #1565c0;
+      --blue-dark: #0d47a1;
+      --blue-soft: #e8f1fc;
+      --background: #f3f7fc;
       --card: #ffffff;
       --text: #17211c;
       --muted: #68756e;
-      --border: #dce5df;
+      --border: #dce5ef;
       --danger: #b62e2e;
-      --shadow: 0 8px 25px rgba(16, 43, 29, .08);
+      --shadow: 0 8px 25px rgba(16, 55, 100, .08);
     }
 
     * {
@@ -45,7 +45,7 @@
     .app-header {
       padding: 18px 16px;
       color: white;
-      background: var(--green);
+      background: var(--blue);
       box-shadow: 0 2px 10px rgba(0, 0, 0, .14);
     }
 
@@ -152,8 +152,8 @@
     }
 
     .tab.active {
-      color: var(--green);
-      border-color: var(--green);
+      color: var(--blue);
+      border-color: var(--blue);
     }
 
     .panel {
@@ -239,8 +239,8 @@
     }
 
     .event-button:hover {
-      background: #f9fcfa;
-      border-color: #88b49e;
+      background: #f9fbff;
+      border-color: #7aa7df;
     }
 
     .event-date {
@@ -268,20 +268,21 @@
 
     .event-meta,
     .admin-item-meta {
+      display: block;
       margin-top: 3px;
       color: var(--muted);
       font-size: 13px;
     }
 
     .event-arrow {
-      color: var(--green);
+      color: var(--blue);
       font-size: 22px;
     }
 
     .back-button {
       padding: 0;
       margin-bottom: 14px;
-      color: var(--green);
+      color: var(--blue);
       background: transparent;
       font-weight: 700;
     }
@@ -305,16 +306,16 @@
 
     .button-primary {
       color: white;
-      background: var(--green);
+      background: var(--blue);
     }
 
     .button-primary:hover {
-      background: var(--green-dark);
+      background: var(--blue-dark);
     }
 
     .button-secondary {
-      color: var(--green);
-      background: var(--green-soft);
+      color: var(--blue);
+      background: var(--blue-soft);
     }
 
     .player-row {
@@ -354,7 +355,7 @@
       color: #3e4d44;
       border: 1px solid transparent;
       border-radius: 7px;
-      background: #edf1ee;
+      background: #edf1f5;
       font-size: 12px;
       font-weight: 800;
     }
@@ -395,7 +396,7 @@
 
     .metric strong {
       display: block;
-      color: var(--green);
+      color: var(--blue);
       font-size: 26px;
     }
 
@@ -441,8 +442,8 @@
     }
 
     .badge.good {
-      color: #0e6139;
-      background: #dff3e7;
+      color: #0d47a1;
+      background: #dceafd;
     }
 
     .badge.warn {
@@ -482,9 +483,9 @@
     .notice {
       margin-bottom: 16px;
       padding: 12px;
-      color: #15563a;
+      color: #0d47a1;
       border-radius: 8px;
-      background: #e9f4ee;
+      background: #e8f1fc;
       font-size: 13px;
       line-height: 1.45;
     }
@@ -503,7 +504,7 @@
       padding: 12px 15px;
       color: white;
       border-radius: 9px;
-      background: #22352a;
+      background: #22354e;
       box-shadow: var(--shadow);
       transform: translateY(90px);
       transition: transform .2s ease;
@@ -518,11 +519,6 @@
       .section-head,
       .attendance-head {
         align-items: flex-start;
-      }
-
-      .header-inner,
-      .section-head,
-      .attendance-head {
         flex-direction: column;
       }
 
@@ -577,7 +573,7 @@
 
         <select class="role-select" id="roleSelect" aria-label="Ansicht auswählen">
           <option value="trainer">Traineransicht</option>
-          <option value="juko">Juniorenkommission</option>
+          <option value="juko">JuKo</option>
         </select>
       </div>
     </div>
@@ -839,7 +835,7 @@
       <div class="section-head">
         <div>
           <h2>Teams und Spieler</h2>
-          <p>Dieser Bereich ist nur für die Juniorenkommission sichtbar.</p>
+          <p>Dieser Bereich ist nur für die JuKo sichtbar.</p>
         </div>
       </div>
 
@@ -887,7 +883,7 @@
 
           <div class="notice" style="margin-top:18px">
             <strong>Spieler per CSV importieren</strong><br>
-            Die CSV-Datei braucht die Spalte <code>Name</code>.
+            Die CSV Datei braucht die Spalte <code>Name</code>.
             Die Spalte <code>Team</code> ist optional.
             Ohne Teamangabe werden alle Spieler dem ausgewählten Standard Team zugeteilt.
           </div>
@@ -918,7 +914,7 @@
 
   <script>
     (() => {
-      const STORAGE_KEY = "awk-anwesenheit-v5";
+      const STORAGE_KEY = "awk-anwesenheit-v6";
       const TRAINER_TEAM_KEY = "awk-trainer-team";
 
       const statuses = [
@@ -1045,9 +1041,7 @@
         const selectedTeamId = trainerTeamId();
 
         select.innerHTML = state.data.teams.map(team => `
-          <option value="${team.id}">
-            ${escapeHtml(team.name)}
-          </option>
+          <option value="${team.id}">${escapeHtml(team.name)}</option>
         `).join("");
 
         select.value = selectedTeamId;
@@ -1090,15 +1084,15 @@
           ? oldPlayerTeamId
           : state.data.teams[0]?.id || "";
 
+        const oldImportTeamId = $("#importPlayerTeam").value;
+
         $("#importPlayerTeam").innerHTML = state.data.teams.map(team => `
           <option value="${team.id}">${escapeHtml(team.name)}</option>
         `).join("");
 
-        const importTeamIds = [...$("#importPlayerTeam").options].map(option => option.value);
-
-        if (!importTeamIds.includes($("#importPlayerTeam").value)) {
-          $("#importPlayerTeam").value = state.data.teams[0]?.id || "";
-        }
+        $("#importPlayerTeam").value = allTeamIds.includes(oldImportTeamId)
+          ? oldImportTeamId
+          : state.data.teams[0]?.id || "";
 
         if (state.role === "trainer") {
           $("#teamFilter").value = trainerTeamId();
@@ -1121,11 +1115,11 @@
         $("#eventsTitle").textContent = isJuko ? "Alle Termine" : "Meine Termine";
 
         $("#eventsIntro").textContent = isJuko
-          ? "Wähle einen Termin und kontrolliere die Anwesenheiten aller Teams."
+          ? "Wähle einen Termin und kontrolliere die Anwesenheiten aller Teams als JuKo."
           : "Wähle ein Training oder Spiel für dein ausgewähltes Team.";
 
         $("#dashboardTitle").textContent = isJuko
-          ? "Auswertung Junioren"
+          ? "Auswertung JuKo"
           : "Auswertung meines Teams";
 
         $("#dashboardIntro").textContent = isJuko
@@ -1137,7 +1131,7 @@
           : "Hier kannst du einzelne Spiele oder wiederkehrende Trainings für dein Team erfassen.";
 
         $("#manageNotice").textContent = isJuko
-          ? "Als Juniorenkommission kannst du Termine für alle Teams verwalten."
+          ? "Als JuKo kannst du Termine für alle Teams verwalten."
           : "Als Trainer kannst du Termine nur für das oben ausgewählte Trainerteam verwalten.";
 
         refreshTeamSelects();
@@ -1283,10 +1277,21 @@
           tab.classList.toggle("active", tab.dataset.tab === id);
         });
 
-        if (id === "dashboard") renderDashboard();
-        if (id === "clean-dashboard") renderCleanDashboard();
-        if (id === "manage") renderManage();
-        if (id === "admin") renderAdmin();
+        if (id === "dashboard") {
+          renderDashboard();
+        }
+
+        if (id === "clean-dashboard") {
+          renderCleanDashboard();
+        }
+
+        if (id === "manage") {
+          renderManage();
+        }
+
+        if (id === "admin") {
+          renderAdmin();
+        }
       }
 
       function getFilteredEvents(teamId, period, type) {
@@ -1328,6 +1333,7 @@
 
             const present = ratedStatuses.filter(status => getStatus(status)?.present).length;
             const missing = ratedStatuses.filter(status => status === "missing").length;
+
             const rate = ratedStatuses.length
               ? Math.round((present / ratedStatuses.length) * 100)
               : null;
