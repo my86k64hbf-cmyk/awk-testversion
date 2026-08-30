@@ -20,7 +20,9 @@
       --shadow: 0 8px 25px rgba(16, 55, 100, .08);
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
@@ -31,7 +33,9 @@
 
     button,
     input,
-    select { font: inherit; }
+    select {
+      font: inherit;
+    }
 
     button {
       cursor: pointer;
@@ -87,7 +91,9 @@
     h1,
     h2,
     h3,
-    p { margin-top: 0; }
+    p {
+      margin-top: 0;
+    }
 
     h1 {
       margin-bottom: 2px;
@@ -154,8 +160,13 @@
       border-color: var(--blue);
     }
 
-    .panel { display: none; }
-    .panel.active { display: block; }
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
 
     .section-head,
     .attendance-head {
@@ -398,7 +409,9 @@
       font-size: 13px;
     }
 
-    .table-wrap { overflow-x: auto; }
+    .table-wrap {
+      overflow-x: auto;
+    }
 
     table {
       width: 100%;
@@ -633,6 +646,10 @@
 
         <div class="player-list" id="playerList"></div>
         <div class="legend" id="statusLegend"></div>
+
+        <div class="attendance-actions" style="margin-top:18px">
+          <button class="button button-primary" id="saveAttendanceBottom">Speichern</button>
+        </div>
       </div>
     </section>
 
@@ -859,8 +876,8 @@
           <form id="playerForm">
             <div class="form-grid two-columns">
               <label>
-                Vorname und Name
-                <input id="newPlayerName" required placeholder="Vorname Nachname">
+                Nachname Vorname
+                <input id="newPlayerName" required placeholder="Zum Beispiel Müller Noah">
               </label>
 
               <label>
@@ -874,7 +891,7 @@
 
           <div class="notice juko-only" style="margin-top:18px">
             <strong>Spieler per CSV importieren</strong><br>
-            Die CSV Datei braucht die Spalte <code>Name</code>.
+            Die CSV Datei braucht die Spalte <code>Name</code> im Format Nachname Vorname.
             Die Spalte <code>Team</code> ist optional.
             Ohne Teamangabe werden alle Spieler dem ausgewählten Standard Team zugeteilt.
           </div>
@@ -910,13 +927,13 @@
 
       const statuses = [
         { id: "present", label: "Anwesend", short: "A", color: "#198754", present: true },
+        { id: "late", label: "Zu spät", short: "Z", color: "#1575b7", present: true },
         { id: "excused", label: "Entschuldigt", short: "E", color: "#d58900", present: false },
-        { id: "injured", label: "Verletzt", short: "V", color: "#6c55ad", present: false },
-        { id: "sick", label: "Krank", short: "K", color: "#bd4770", present: false },
         { id: "missing", label: "Unentschuldigt", short: "U", color: "#d33b3b", present: false },
-        { id: "holiday", label: "Ferien", short: "F", color: "#0d8491", present: false },
         { id: "notCalled", label: "Nicht aufgeboten", short: "N", color: "#68756e", present: false },
-        { id: "late", label: "Zu spät", short: "Z", color: "#1575b7", present: true }
+        { id: "sick", label: "Krank", short: "K", color: "#bd4770", present: false },
+        { id: "injured", label: "Verletzt", short: "V", color: "#6c55ad", present: false },
+        { id: "holiday", label: "Ferien", short: "F", color: "#0d8491", present: false }
       ];
 
       const defaultData = {
@@ -925,12 +942,12 @@
           { id: "e", name: "E Junioren", trainer: "Sandro Meier" }
         ],
         players: [
-          { id: "p1", teamId: "d9", name: "Liam Frei" },
-          { id: "p2", teamId: "d9", name: "Noah Müller" },
-          { id: "p3", teamId: "d9", name: "Milan Studer" },
-          { id: "p4", teamId: "d9", name: "Finn Weber" },
-          { id: "p5", teamId: "e", name: "Elia Huber" },
-          { id: "p6", teamId: "e", name: "Luca Baumann" }
+          { id: "p1", teamId: "d9", name: "Frei Liam" },
+          { id: "p2", teamId: "d9", name: "Müller Noah" },
+          { id: "p3", teamId: "d9", name: "Studer Milan" },
+          { id: "p4", teamId: "d9", name: "Weber Finn" },
+          { id: "p5", teamId: "e", name: "Huber Elia" },
+          { id: "p6", teamId: "e", name: "Baumann Luca" }
         ],
         events: [],
         attendance: {}
@@ -1226,7 +1243,10 @@
         }
 
         const attendance = state.data.attendance[event.id] || {};
-        const players = state.data.players.filter(player => player.teamId === event.teamId);
+
+        const players = state.data.players
+          .filter(player => player.teamId === event.teamId)
+          .sort((a, b) => a.name.localeCompare(b.name, "de-CH"));
 
         $("#playerList").innerHTML = players.length
           ? players.map(player => {
@@ -1266,7 +1286,16 @@
 
         $$(".status-button").forEach(button => {
           button.addEventListener("click", () => {
-            state.data.attendance[state.activeEventId][button.dataset.playerId] = button.dataset.status;
+            const playerId = button.dataset.playerId;
+            const statusId = button.dataset.status;
+            const currentStatus = state.data.attendance[state.activeEventId][playerId];
+
+            if (currentStatus === statusId) {
+              delete state.data.attendance[state.activeEventId][playerId];
+            } else {
+              state.data.attendance[state.activeEventId][playerId] = statusId;
+            }
+
             renderPlayers();
           });
         });
@@ -1411,7 +1440,11 @@
           `;
 
         $(tableSelector).innerHTML = rows
-          .sort((a, b) => (a.rate ?? 101) - (b.rate ?? 101))
+          .sort((a, b) => {
+            if (a.rate === null) return 1;
+            if (b.rate === null) return -1;
+            return a.rate - b.rate;
+          })
           .map(row => {
             const badgeClass = row.rate === null
               ? "warn"
@@ -1446,6 +1479,12 @@
           }).join("");
       }
 
+      function hasAttendanceEntries(eventId) {
+        return Object.values(state.data.attendance[eventId] || {}).some(status => {
+          return Boolean(status);
+        });
+      }
+
       function renderManage() {
         refreshTeamSelects();
 
@@ -1454,24 +1493,36 @@
           .sort((a, b) => `${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`));
 
         $("#eventAdminList").innerHTML = events.length
-          ? events.map(event => `
-              <div class="admin-item">
-                <div>
-                  <div class="admin-item-title">${escapeHtml(event.title)}</div>
-                  <div class="admin-item-meta">
-                    ${escapeHtml(teamName(event.teamId))} ·
-                    ${event.type === "training" ? "Training" : "Spiel"} ·
-                    ${formatDate(event.date)} ·
-                    ${event.time} ·
-                    ${escapeHtml(event.location)}
-                  </div>
-                </div>
+          ? events.map(event => {
+              const eventHasAttendanceEntries = hasAttendanceEntries(event.id);
+              const deleteDisabled = state.role === "trainer" && eventHasAttendanceEntries;
 
-                <button class="small-button delete-event" data-event-id="${event.id}">
-                  Löschen
-                </button>
-              </div>
-            `).join("")
+              return `
+                <div class="admin-item">
+                  <div>
+                    <div class="admin-item-title">${escapeHtml(event.title)}</div>
+                    <div class="admin-item-meta">
+                      ${escapeHtml(teamName(event.teamId))} ·
+                      ${event.type === "training" ? "Training" : "Spiel"} ·
+                      ${formatDate(event.date)} ·
+                      ${event.time} ·
+                      ${escapeHtml(event.location)}
+                      ${deleteDisabled ? " · Anwesenheiten bereits erfasst" : ""}
+                    </div>
+                  </div>
+
+                  <button
+                    class="small-button delete-event"
+                    data-event-id="${event.id}"
+                    ${deleteDisabled ? "disabled" : ""}
+                    title="${deleteDisabled ? "Dieser Termin enthält bereits Anwesenheitseinträge und kann nur durch die JuKo gelöscht werden." : "Termin löschen"}"
+                    style="${deleteDisabled ? "opacity:.45;" : ""}"
+                  >
+                    Löschen
+                  </button>
+                </div>
+              `;
+            }).join("")
           : `<div class="empty">Noch keine Termine vorhanden.</div>`;
 
         $$(".delete-event").forEach(button => {
@@ -1559,6 +1610,11 @@
         const event = state.data.events.find(item => item.id === eventId);
 
         if (!event || !allowedTeamIds().includes(event.teamId)) {
+          return;
+        }
+
+        if (state.role === "trainer" && hasAttendanceEntries(eventId)) {
+          showToast("Dieser Termin enthält bereits Anwesenheitseinträge und kann nur durch die JuKo gelöscht werden.");
           return;
         }
 
@@ -1737,7 +1793,7 @@
           const firstRow = rows[0].map(normalizeText);
 
           const nameColumn = firstRow.findIndex(value => {
-            return ["name", "spieler", "spielername", "vorname und name"].includes(value);
+            return ["name", "spieler", "spielername", "nachname vorname"].includes(value);
           });
 
           const teamColumn = firstRow.findIndex(value => {
@@ -1755,6 +1811,7 @@
           for (let index = startIndex; index < rows.length; index += 1) {
             const row = rows[index];
             const name = String(row[resolvedNameColumn] || "").trim();
+
             const teamValue = resolvedTeamColumn >= 0
               ? String(row[resolvedTeamColumn] || "").trim()
               : "";
@@ -1866,6 +1923,12 @@
         }, 2400);
       }
 
+      function saveCurrentAttendance() {
+        saveData();
+        renderEvents();
+        showToast("Anwesenheit wurde gespeichert.");
+      }
+
       $("#roleSelect").addEventListener("change", setRole);
 
       $("#trainerTeamSelect").addEventListener("change", event => {
@@ -1934,11 +1997,8 @@
         renderPlayers();
       });
 
-      $("#saveAttendance").addEventListener("click", () => {
-        saveData();
-        renderEvents();
-        showToast("Anwesenheit wurde gespeichert.");
-      });
+      $("#saveAttendance").addEventListener("click", saveCurrentAttendance);
+      $("#saveAttendanceBottom").addEventListener("click", saveCurrentAttendance);
 
       $("#newEventMode").addEventListener("change", updateSeriesFields);
       $("#exportCsv").addEventListener("click", exportCsv);
