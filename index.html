@@ -20,9 +20,7 @@
       --shadow: 0 8px 25px rgba(16, 55, 100, .08);
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -33,13 +31,15 @@
 
     button,
     input,
-    select {
-      font: inherit;
-    }
+    select { font: inherit; }
 
     button {
       cursor: pointer;
       border: 0;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
     }
 
     .app-header {
@@ -87,9 +87,7 @@
     h1,
     h2,
     h3,
-    p {
-      margin-top: 0;
-    }
+    p { margin-top: 0; }
 
     h1 {
       margin-bottom: 2px;
@@ -156,13 +154,8 @@
       border-color: var(--blue);
     }
 
-    .panel {
-      display: none;
-    }
-
-    .panel.active {
-      display: block;
-    }
+    .panel { display: none; }
+    .panel.active { display: block; }
 
     .section-head,
     .attendance-head {
@@ -405,9 +398,7 @@
       font-size: 13px;
     }
 
-    .table-wrap {
-      overflow-x: auto;
-    }
+    .table-wrap { overflow-x: auto; }
 
     table {
       width: 100%;
@@ -585,7 +576,7 @@
       <button class="tab" data-tab="dashboard">Auswertung</button>
       <button class="tab" data-tab="clean-dashboard">Bereinigte Auswertung</button>
       <button class="tab" data-tab="manage">Termine verwalten</button>
-      <button class="tab juko-only" data-tab="admin">Teams und Spieler</button>
+      <button class="tab" data-tab="admin">Spieler verwalten</button>
     </nav>
 
     <section class="panel active" id="events">
@@ -834,13 +825,13 @@
     <section class="panel" id="admin">
       <div class="section-head">
         <div>
-          <h2>Teams und Spieler</h2>
-          <p>Dieser Bereich ist nur für die JuKo sichtbar.</p>
+          <h2 id="adminTitle">Spieler verwalten</h2>
+          <p id="adminIntro">Hier kannst du Spieler deines ausgewählten Trainerteams hinzufügen oder verwalten.</p>
         </div>
       </div>
 
       <div class="admin-layout">
-        <div class="card">
+        <div class="card juko-only">
           <h3>Neues Team</h3>
 
           <form id="teamForm">
@@ -881,14 +872,14 @@
             <button class="button button-primary" type="submit">Spieler hinzufügen</button>
           </form>
 
-          <div class="notice" style="margin-top:18px">
+          <div class="notice juko-only" style="margin-top:18px">
             <strong>Spieler per CSV importieren</strong><br>
             Die CSV Datei braucht die Spalte <code>Name</code>.
             Die Spalte <code>Team</code> ist optional.
             Ohne Teamangabe werden alle Spieler dem ausgewählten Standard Team zugeteilt.
           </div>
 
-          <form id="playerImportForm">
+          <form class="juko-only" id="playerImportForm">
             <div class="form-grid two-columns">
               <label>
                 Standard Team
@@ -914,7 +905,7 @@
 
   <script>
     (() => {
-      const STORAGE_KEY = "awk-anwesenheit-v6";
+      const STORAGE_KEY = "awk-anwesenheit-v7";
       const TRAINER_TEAM_KEY = "awk-trainer-team";
 
       const statuses = [
@@ -1072,19 +1063,23 @@
         fillTeamSelect($("#cleanDashboardTeamFilter"), "Alle Teams", $("#cleanDashboardTeamFilter").value);
         fillTeamSelect($("#newEventTeam"), "", $("#newEventTeam").value);
 
+        const availableTeams = state.data.teams.filter(team => {
+          return allowedTeamIds().includes(team.id);
+        });
+
+        const availableTeamIds = availableTeams.map(team => team.id);
         const oldPlayerTeamId = $("#newPlayerTeam").value;
 
-        $("#newPlayerTeam").innerHTML = state.data.teams.map(team => `
+        $("#newPlayerTeam").innerHTML = availableTeams.map(team => `
           <option value="${team.id}">${escapeHtml(team.name)}</option>
         `).join("");
 
-        const allTeamIds = state.data.teams.map(team => team.id);
-
-        $("#newPlayerTeam").value = allTeamIds.includes(oldPlayerTeamId)
+        $("#newPlayerTeam").value = availableTeamIds.includes(oldPlayerTeamId)
           ? oldPlayerTeamId
-          : state.data.teams[0]?.id || "";
+          : availableTeams[0]?.id || "";
 
         const oldImportTeamId = $("#importPlayerTeam").value;
+        const allTeamIds = state.data.teams.map(team => team.id);
 
         $("#importPlayerTeam").innerHTML = state.data.teams.map(team => `
           <option value="${team.id}">${escapeHtml(team.name)}</option>
@@ -1099,6 +1094,7 @@
           $("#dashboardTeamFilter").value = trainerTeamId();
           $("#cleanDashboardTeamFilter").value = trainerTeamId();
           $("#newEventTeam").value = trainerTeamId();
+          $("#newPlayerTeam").value = trainerTeamId();
         }
       }
 
@@ -1134,11 +1130,19 @@
           ? "Als JuKo kannst du Termine für alle Teams verwalten."
           : "Als Trainer kannst du Termine nur für das oben ausgewählte Trainerteam verwalten.";
 
+        $("#adminTitle").textContent = isJuko
+          ? "Teams und Spieler"
+          : "Spieler verwalten";
+
+        $("#adminIntro").textContent = isJuko
+          ? "Als JuKo kannst du Teams und Spieler aller Mannschaften verwalten."
+          : "Hier kannst du Spieler deines ausgewählten Trainerteams hinzufügen oder verwalten.";
+
         refreshTeamSelects();
         renderEvents();
 
-        if (!isJuko && $("#admin").classList.contains("active")) {
-          showPanel("events");
+        if ($("#admin").classList.contains("active")) {
+          renderAdmin();
         }
       }
 
@@ -1277,21 +1281,10 @@
           tab.classList.toggle("active", tab.dataset.tab === id);
         });
 
-        if (id === "dashboard") {
-          renderDashboard();
-        }
-
-        if (id === "clean-dashboard") {
-          renderCleanDashboard();
-        }
-
-        if (id === "manage") {
-          renderManage();
-        }
-
-        if (id === "admin") {
-          renderAdmin();
-        }
+        if (id === "dashboard") renderDashboard();
+        if (id === "clean-dashboard") renderCleanDashboard();
+        if (id === "manage") renderManage();
+        if (id === "admin") renderAdmin();
       }
 
       function getFilteredEvents(teamId, period, type) {
@@ -1312,10 +1305,8 @@
       function getReportRows(events, teamId, excludedStatuses = []) {
         return state.data.players
           .filter(player => {
-            return (
-              allowedTeamIds().includes(player.teamId) &&
-              (teamId === "all" || player.teamId === teamId)
-            );
+            return allowedTeamIds().includes(player.teamId) &&
+              (teamId === "all" || player.teamId === teamId);
           })
           .map(player => {
             const statusesForPlayer = events
@@ -1333,7 +1324,6 @@
 
             const present = ratedStatuses.filter(status => getStatus(status)?.present).length;
             const missing = ratedStatuses.filter(status => status === "missing").length;
-
             const rate = ratedStatuses.length
               ? Math.round((present / ratedStatuses.length) * 100)
               : null;
@@ -1366,11 +1356,11 @@
         const type = $("#cleanDashboardTypeFilter").value;
         const events = getFilteredEvents(teamId, period, type);
 
-        const rows = getReportRows(
-          events,
-          teamId,
-          ["holiday", "injured", "notCalled"]
-        );
+        const rows = getReportRows(events, teamId, [
+          "holiday",
+          "injured",
+          "notCalled"
+        ]);
 
         renderDashboardContent("#cleanMetricGrid", "#cleanReportTable", events, rows, true);
       }
@@ -1433,8 +1423,8 @@
 
             const rateLabel = row.rate === null ? "Keine Daten" : `${row.rate}%`;
 
-            if (cleaned) {
-              return `
+            return cleaned
+              ? `
                 <tr>
                   <td>${escapeHtml(row.player.name)}</td>
                   <td>${escapeHtml(teamName(row.player.teamId))}</td>
@@ -1443,18 +1433,16 @@
                   <td>${row.excluded}</td>
                   <td>${row.missing}</td>
                 </tr>
+              `
+              : `
+                <tr>
+                  <td>${escapeHtml(row.player.name)}</td>
+                  <td>${escapeHtml(teamName(row.player.teamId))}</td>
+                  <td>${row.recorded}</td>
+                  <td><span class="badge ${badgeClass}">${rateLabel}</span></td>
+                  <td>${row.missing}</td>
+                </tr>
               `;
-            }
-
-            return `
-              <tr>
-                <td>${escapeHtml(row.player.name)}</td>
-                <td>${escapeHtml(teamName(row.player.teamId))}</td>
-                <td>${row.recorded}</td>
-                <td><span class="badge ${badgeClass}">${rateLabel}</span></td>
-                <td>${row.missing}</td>
-              </tr>
-            `;
           }).join("");
       }
 
@@ -1491,46 +1479,72 @@
         });
       }
 
+      function playerHasAttendanceEntries(playerId) {
+        return Object.values(state.data.attendance).some(attendance => {
+          return Boolean(attendance[playerId]);
+        });
+      }
+
       function renderAdmin() {
         refreshTeamSelects();
 
-        $("#teamAdminList").innerHTML = state.data.teams.length
-          ? state.data.teams.map(team => {
-              const playerCount = state.data.players.filter(player => player.teamId === team.id).length;
+        if (state.role === "juko") {
+          $("#teamAdminList").innerHTML = state.data.teams.length
+            ? state.data.teams.map(team => {
+                const playerCount = state.data.players.filter(player => {
+                  return player.teamId === team.id;
+                }).length;
+
+                return `
+                  <div class="admin-item">
+                    <div>
+                      <div class="admin-item-title">${escapeHtml(team.name)}</div>
+                      <div class="admin-item-meta">
+                        Trainer: ${escapeHtml(team.trainer)} · ${playerCount} Spieler
+                      </div>
+                    </div>
+
+                    <button class="small-button delete-team" data-team-id="${team.id}">
+                      Löschen
+                    </button>
+                  </div>
+                `;
+              }).join("")
+            : `<div class="empty">Noch keine Teams vorhanden.</div>`;
+        }
+
+        const visiblePlayers = state.data.players
+          .filter(player => allowedTeamIds().includes(player.teamId))
+          .sort((a, b) => a.name.localeCompare(b.name, "de-CH"));
+
+        $("#playerAdminList").innerHTML = visiblePlayers.length
+          ? visiblePlayers.map(player => {
+              const hasAttendanceEntries = playerHasAttendanceEntries(player.id);
+              const deleteDisabled = state.role === "trainer" && hasAttendanceEntries;
 
               return `
                 <div class="admin-item">
                   <div>
-                    <div class="admin-item-title">${escapeHtml(team.name)}</div>
+                    <div class="admin-item-title">${escapeHtml(player.name)}</div>
                     <div class="admin-item-meta">
-                      Trainer: ${escapeHtml(team.trainer)} · ${playerCount} Spieler
+                      ${escapeHtml(teamName(player.teamId))}
+                      ${deleteDisabled ? " · Bereits bei Terminen erfasst" : ""}
                     </div>
                   </div>
 
-                  <button class="small-button delete-team" data-team-id="${team.id}">
+                  <button
+                    class="small-button delete-player"
+                    data-player-id="${player.id}"
+                    ${deleteDisabled ? "disabled" : ""}
+                    title="${deleteDisabled ? "Dieser Spieler hat bereits Anwesenheitseinträge und kann nur durch die JuKo gelöscht werden." : "Spieler löschen"}"
+                    style="${deleteDisabled ? "opacity:.45;" : ""}"
+                  >
                     Löschen
                   </button>
                 </div>
               `;
             }).join("")
-          : `<div class="empty">Noch keine Teams vorhanden.</div>`;
-
-        $("#playerAdminList").innerHTML = state.data.players.length
-          ? [...state.data.players]
-            .sort((a, b) => a.name.localeCompare(b.name, "de-CH"))
-            .map(player => `
-              <div class="admin-item">
-                <div>
-                  <div class="admin-item-title">${escapeHtml(player.name)}</div>
-                  <div class="admin-item-meta">${escapeHtml(teamName(player.teamId))}</div>
-                </div>
-
-                <button class="small-button delete-player" data-player-id="${player.id}">
-                  Löschen
-                </button>
-              </div>
-            `).join("")
-          : `<div class="empty">Noch keine Spieler vorhanden.</div>`;
+          : `<div class="empty">Für dieses Team sind noch keine Spieler vorhanden.</div>`;
 
         $$(".delete-team").forEach(button => {
           button.addEventListener("click", () => deleteTeam(button.dataset.teamId));
@@ -1564,7 +1578,21 @@
       function deletePlayer(playerId) {
         const player = state.data.players.find(item => item.id === playerId);
 
-        if (!player || !confirm(`${player.name} wirklich löschen?`)) {
+        if (!player) {
+          return;
+        }
+
+        if (!allowedTeamIds().includes(player.teamId)) {
+          showToast("Du hast keine Berechtigung für diesen Spieler.");
+          return;
+        }
+
+        if (state.role === "trainer" && playerHasAttendanceEntries(playerId)) {
+          showToast("Dieser Spieler hat bereits Anwesenheitseinträge und kann nur durch die JuKo gelöscht werden.");
+          return;
+        }
+
+        if (!confirm(`${player.name} wirklich löschen?`)) {
           return;
         }
 
@@ -1582,7 +1610,11 @@
       function deleteTeam(teamId) {
         const team = state.data.teams.find(item => item.id === teamId);
 
-        if (!team || !confirm(`${team.name} inklusive Spielern und Terminen wirklich löschen?`)) {
+        if (!team || state.role !== "juko") {
+          return;
+        }
+
+        if (!confirm(`${team.name} inklusive Spielern und Terminen wirklich löschen?`)) {
           return;
         }
 
@@ -1686,10 +1718,8 @@
         }
 
         return state.data.teams.find(team => {
-          return (
-            normalizeText(team.id) === normalizedValue ||
-            normalizeText(team.name) === normalizedValue
-          );
+          return normalizeText(team.id) === normalizedValue ||
+            normalizeText(team.name) === normalizedValue;
         }) || null;
       }
 
@@ -1742,10 +1772,8 @@
             }
 
             const alreadyExists = state.data.players.some(player => {
-              return (
-                player.teamId === team.id &&
-                normalizeText(player.name) === normalizeText(name)
-              );
+              return player.teamId === team.id &&
+                normalizeText(player.name) === normalizeText(name);
             });
 
             if (alreadyExists) {
@@ -1863,6 +1891,10 @@
           renderManage();
         }
 
+        if ($("#admin").classList.contains("active")) {
+          renderAdmin();
+        }
+
         if ($("#attendance").classList.contains("active")) {
           showPanel("events");
         }
@@ -1914,6 +1946,11 @@
       $("#teamForm").addEventListener("submit", event => {
         event.preventDefault();
 
+        if (state.role !== "juko") {
+          showToast("Nur die JuKo kann Teams hinzufügen.");
+          return;
+        }
+
         const name = $("#newTeamName").value.trim();
         const trainer = $("#newTeamTrainer").value.trim();
 
@@ -1961,11 +1998,14 @@
           return;
         }
 
+        if (!allowedTeamIds().includes(teamId)) {
+          showToast("Du hast keine Berechtigung für dieses Team.");
+          return;
+        }
+
         const exists = state.data.players.some(player => {
-          return (
-            player.teamId === teamId &&
-            normalizeText(player.name) === normalizeText(name)
-          );
+          return player.teamId === teamId &&
+            normalizeText(player.name) === normalizeText(name);
         });
 
         if (exists) {
@@ -1987,6 +2027,11 @@
 
       $("#playerImportForm").addEventListener("submit", event => {
         event.preventDefault();
+
+        if (state.role !== "juko") {
+          showToast("Nur die JuKo kann Spieler importieren.");
+          return;
+        }
 
         const file = $("#playerCsvFile").files[0];
         const fallbackTeamId = $("#importPlayerTeam").value;
@@ -2073,10 +2118,6 @@
 
       $$(".tab").forEach(tab => {
         tab.addEventListener("click", () => {
-          if (tab.classList.contains("juko-only") && state.role !== "juko") {
-            return;
-          }
-
           showPanel(tab.dataset.tab);
         });
       });
