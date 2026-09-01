@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#1565c0">
-  <title>AWK</title>
+  <title>FCH App</title>
 
   <style>
     :root {
@@ -17,12 +17,12 @@
       --muted: #68756e;
       --border: #dce5ef;
       --danger: #b62e2e;
+      --success: #198754;
+      --warning: #d58900;
       --shadow: 0 8px 25px rgba(16, 55, 100, .08);
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -31,30 +31,19 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
-    button,
-    input,
-    select {
-      font: inherit;
-    }
+    button, input, select, textarea { font: inherit; }
 
-    button {
-      cursor: pointer;
-      border: 0;
-    }
-
-    button:disabled {
-      cursor: not-allowed;
-    }
+    button { cursor: pointer; border: 0; }
+    button:disabled { cursor: not-allowed; opacity: .45; }
 
     .app-header {
-      padding: 18px 16px;
+      padding: 16px;
       color: white;
       background: var(--blue);
       box-shadow: 0 2px 10px rgba(0, 0, 0, .14);
     }
 
-    .header-inner,
-    main {
+    .header-inner, main {
       width: min(1100px, calc(100% - 32px));
       margin: 0 auto;
     }
@@ -63,7 +52,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 14px;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
     .brand {
@@ -74,54 +64,34 @@
 
     .brand-mark {
       display: grid;
-      width: 40px;
+      min-width: 44px;
       height: 40px;
+      padding: 0 6px;
       place-items: center;
       border-radius: 10px;
       background: rgba(255, 255, 255, .16);
       font-weight: 800;
+      font-size: 14px;
+      letter-spacing: .5px;
     }
 
     .header-controls {
       display: flex;
       align-items: center;
       gap: 8px;
+      flex-wrap: wrap;
     }
 
-    h1,
-    h2,
-    h3,
-    p {
-      margin-top: 0;
-    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 2px; font-size: 18px; }
+    h2 { margin-bottom: 5px; font-size: 22px; }
+    h3 { margin-bottom: 12px; font-size: 17px; }
+    .brand p { margin: 0; opacity: .8; font-size: 12px; }
 
-    h1 {
-      margin-bottom: 2px;
-      font-size: 19px;
-    }
-
-    h2 {
-      margin-bottom: 5px;
-      font-size: 23px;
-    }
-
-    h3 {
-      margin-bottom: 14px;
-      font-size: 18px;
-    }
-
-    .brand p {
-      margin: 0;
-      opacity: .8;
-      font-size: 13px;
-    }
-
-    main {
-      padding: 24px 0 48px;
-    }
+    main { padding: 20px 0 40px; }
 
     .role-select {
-      min-width: 165px;
+      min-width: 200px;
       padding: 8px 10px;
       color: white;
       border: 1px solid rgba(255, 255, 255, .35);
@@ -129,11 +99,7 @@
       background: rgba(0, 0, 0, .14);
     }
 
-    #trainerTeamSelect {
-      min-width: 155px;
-    }
-
-    .role-select option {
+    .role-select option, .role-select optgroup {
       color: var(--text);
       background: white;
     }
@@ -141,7 +107,7 @@
     .tabs {
       display: flex;
       gap: 6px;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       overflow-x: auto;
       border-bottom: 1px solid var(--border);
     }
@@ -155,64 +121,49 @@
       font-weight: 700;
     }
 
-    .tab.active {
-      color: var(--blue);
-      border-color: var(--blue);
-    }
+    .tab.active { color: var(--blue); border-color: var(--blue); }
 
-    .panel {
-      display: none;
-    }
+    .panel { display: none; }
+    .panel.active { display: block; }
 
-    .panel.active {
-      display: block;
-    }
-
-    .section-head,
-    .attendance-head {
+    .section-head {
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
       gap: 12px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
     }
 
-    .section-head p,
-    .event-subtitle {
-      margin-bottom: 0;
-      color: var(--muted);
-    }
+    .section-head p { margin-bottom: 0; color: var(--muted); }
 
     .card {
-      padding: 18px;
+      padding: 16px;
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 14px;
       box-shadow: var(--shadow);
+      margin-bottom: 14px;
     }
 
-    .filters,
-    .form-grid {
+    .filters, .form-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 12px;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
 
-    .form-grid.two-columns {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+    .form-grid.two-columns { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
     label {
       display: grid;
-      gap: 6px;
+      gap: 5px;
       color: var(--muted);
       font-size: 13px;
       font-weight: 700;
     }
 
-    input,
-    select {
+    input, select, textarea {
       width: 100%;
       padding: 10px;
       color: var(--text);
@@ -221,12 +172,65 @@
       background: white;
     }
 
-    .event-list,
-    .player-list,
-    .admin-list {
+    textarea { resize: vertical; }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 9px 13px;
+      border-radius: 8px;
+      font-weight: 700;
+      gap: 6px;
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    .button-primary { color: white; background: var(--blue); }
+    .button-primary:hover { background: var(--blue-dark); }
+    .button-secondary { color: var(--blue); background: var(--blue-soft); }
+    .button-danger { color: white; background: var(--danger); }
+
+    .small-button {
+      padding: 6px 9px;
+      color: var(--danger);
+      border-radius: 7px;
+      background: #fce8e8;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .back-button {
+      padding: 0;
+      margin-bottom: 12px;
+      color: var(--blue);
+      background: transparent;
+      font-weight: 700;
+    }
+
+    .event-list, .admin-list, .module-grid, .assignment-list {
       display: grid;
       gap: 10px;
     }
+
+    .module-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+
+    .module-card {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 18px;
+      text-align: left;
+      color: var(--text);
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .module-card:hover { border-color: var(--blue); background: #fbfdff; }
+    .module-card h3 { margin: 0; color: var(--blue); }
+    .module-card p { margin: 0; color: var(--muted); font-size: 13px; flex: 1; }
 
     .event-button {
       display: grid;
@@ -242,10 +246,7 @@
       border-radius: 11px;
     }
 
-    .event-button:hover {
-      background: #f9fbff;
-      border-color: #7aa7df;
-    }
+    .event-button:hover { background: #f9fbff; border-color: #7aa7df; }
 
     .event-date {
       min-width: 48px;
@@ -254,73 +255,18 @@
       border-right: 1px solid var(--border);
     }
 
-    .event-date strong {
-      display: block;
-      font-size: 19px;
-    }
+    .event-date strong { display: block; font-size: 19px; }
+    .event-date span { color: var(--muted); font-size: 11px; text-transform: uppercase; }
+    .event-name { font-weight: 750; }
 
-    .event-date span {
-      color: var(--muted);
-      font-size: 11px;
-      text-transform: uppercase;
-    }
-
-    .event-name,
-    .admin-item-title {
-      font-weight: 750;
-    }
-
-    .event-meta,
-    .admin-item-meta {
+    .event-meta, .admin-item-meta, .assignment-meta {
       display: block;
       margin-top: 3px;
       color: var(--muted);
       font-size: 13px;
     }
 
-    .event-arrow {
-      color: var(--blue);
-      font-size: 22px;
-    }
-
-    .back-button {
-      padding: 0;
-      margin-bottom: 14px;
-      color: var(--blue);
-      background: transparent;
-      font-weight: 700;
-    }
-
-    .event-title {
-      margin-bottom: 5px;
-      font-size: 21px;
-    }
-
-    .attendance-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .button {
-      padding: 10px 12px;
-      border-radius: 8px;
-      font-weight: 700;
-    }
-
-    .button-primary {
-      color: white;
-      background: var(--blue);
-    }
-
-    .button-primary:hover {
-      background: var(--blue-dark);
-    }
-
-    .button-secondary {
-      color: var(--blue);
-      background: var(--blue-soft);
-    }
+    .event-arrow { color: var(--blue); font-size: 22px; }
 
     .player-row {
       display: grid;
@@ -331,26 +277,15 @@
       border-bottom: 1px solid var(--border);
     }
 
-    .player-row:last-child,
-    .admin-item:last-child {
-      border-bottom: 0;
-    }
-
-    .player-name {
-      font-weight: 720;
-    }
-
-    .player-note {
-      margin-top: 3px;
-      color: var(--muted);
-      font-size: 12px;
-    }
+    .player-row:last-child, .admin-item:last-child { border-bottom: 0; }
+    .player-name { font-weight: 720; }
+    .player-note { margin-top: 3px; color: var(--muted); font-size: 12px; }
 
     .status-group {
       display: flex;
       flex-wrap: wrap;
       justify-content: flex-end;
-      gap: 5px;
+      gap: 4px;
     }
 
     .status-button {
@@ -364,10 +299,7 @@
       font-weight: 800;
     }
 
-    .status-button.active {
-      color: white;
-      background: var(--status-color);
-    }
+    .status-button.active { color: white; background: var(--status-color); }
 
     .legend {
       display: flex;
@@ -378,18 +310,8 @@
       font-size: 12px;
     }
 
-    .legend span {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .dot {
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: var(--dot-color);
-    }
+    .legend span { display: inline-flex; align-items: center; gap: 4px; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--dot-color); }
 
     .dashboard-grid {
       display: grid;
@@ -398,44 +320,14 @@
       margin-bottom: 18px;
     }
 
-    .metric strong {
-      display: block;
-      color: var(--blue);
-      font-size: 26px;
-    }
+    .metric strong { display: block; color: var(--blue); font-size: 26px; }
+    .metric span { color: var(--muted); font-size: 13px; }
 
-    .metric span {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .table-wrap {
-      overflow-x: auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-
-    th,
-    td {
-      padding: 12px 10px;
-      text-align: left;
-      border-bottom: 1px solid var(--border);
-    }
-
-    th {
-      color: var(--muted);
-      font-size: 12px;
-      text-transform: uppercase;
-    }
-
-    td:last-child,
-    th:last-child {
-      text-align: right;
-    }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-size: 12px; text-transform: uppercase; }
+    td:last-child, th:last-child { text-align: right; }
 
     .badge {
       display: inline-block;
@@ -445,24 +337,13 @@
       font-weight: 750;
     }
 
-    .badge.good {
-      color: #0d47a1;
-      background: #dceafd;
-    }
-
-    .badge.warn {
-      color: #875700;
-      background: #fff0cd;
-    }
-
-    .badge.bad {
-      color: #9e2626;
-      background: #fde2e2;
-    }
+    .badge.good { color: #0d47a1; background: #dceafd; }
+    .badge.warn { color: #875700; background: #fff0cd; }
+    .badge.bad { color: #9e2626; background: #fde2e2; }
 
     .admin-layout {
       display: grid;
-      grid-template-columns: 1fr 1.35fr;
+      grid-template-columns: 1fr;
       gap: 18px;
     }
 
@@ -475,15 +356,6 @@
       border-bottom: 1px solid var(--border);
     }
 
-    .small-button {
-      padding: 7px 9px;
-      color: var(--danger);
-      border-radius: 7px;
-      background: #fce8e8;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
     .notice {
       margin-bottom: 16px;
       padding: 12px;
@@ -494,11 +366,7 @@
       line-height: 1.45;
     }
 
-    .empty {
-      padding: 28px;
-      color: var(--muted);
-      text-align: center;
-    }
+    .empty { padding: 28px; color: var(--muted); text-align: center; }
 
     .toast {
       position: fixed;
@@ -514,416 +382,175 @@
       transition: transform .2s ease;
     }
 
-    .toast.show {
-      transform: translateY(0);
+    .toast.show { transform: translateY(0); }
+
+    .assignment-card {
+      padding: 16px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      transition: opacity .15s ease, background .15s ease;
+    }
+
+    .assignment-card.is-past {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      opacity: 0.72;
+    }
+
+    .assignment-card.is-past:hover {
+      opacity: 1;
+    }
+
+    .assignment-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .assignment-title { margin: 0; font-size: 17px; font-weight: 750; }
+
+    .assignment-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .assignment-status.open { color: #9e2626; background: #fde2e2; }
+    .assignment-status.partial { color: #875700; background: #fff0cd; }
+    .assignment-status.filled { color: #1b5e20; background: #d4edda; }
+    .assignment-status.completed, .assignment-status.cancelled { color: var(--muted); background: #eef1f4; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+    .assignment-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .assignment-signups {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+    }
+
+    .assignment-signups ul { margin: 6px 0 0; padding-left: 18px; }
+    .assignment-signups li {
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .role-badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 750;
+      background: var(--blue-soft);
+      color: var(--blue);
+      margin-right: 4px;
+    }
+
+    .role-badge.hl {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .overview-share-card {
+      background: #fbfdff;
+      border: 1px solid #c9def5;
+      padding: 14px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .overview-share-card h4 {
+      margin: 0 0 4px 0;
+      color: var(--blue);
+      font-size: 15px;
+    }
+
+    .public-header {
+      padding: 24px 16px;
+      color: white;
+      text-align: center;
+      background: var(--blue);
+    }
+
+    .public-header .brand-mark {
+      margin: 0 auto 12px;
+      width: 56px;
+      height: 56px;
+      font-size: 18px;
+      background: rgba(255, 255, 255, .18);
+    }
+
+    .public-body {
+      width: min(680px, calc(100% - 32px));
+      margin: 20px auto 48px;
+    }
+
+    .signup-form { display: grid; gap: 12px; margin-top: 14px; }
+    .slot-count {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 4px 10px;
+      border-radius: 99px;
+      background: var(--blue-soft);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .hidden { display: none !important; }
+
+    .admin-manual-form {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 8px;
+      background: var(--background);
+      border: 1px dashed var(--border);
     }
 
     @media (max-width: 760px) {
-      .header-inner,
-      .section-head,
-      .attendance-head {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-
-      .header-controls {
-        width: 100%;
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .role-select,
-      #trainerTeamSelect {
-        min-width: 0;
-      }
-
-      .filters,
-      .form-grid,
-      .form-grid.two-columns,
-      .dashboard-grid,
-      .admin-layout {
+      .header-inner, .section-head { align-items: flex-start; flex-direction: column; }
+      .header-controls { width: 100%; flex-direction: column; align-items: stretch; }
+      .role-select { min-width: 0; }
+      .filters, .form-grid, .form-grid.two-columns, .dashboard-grid, .admin-layout {
         grid-template-columns: 1fr;
       }
-
-      .player-row {
-        grid-template-columns: 1fr;
-      }
-
-      .status-group,
-      .attendance-actions {
-        justify-content: flex-start;
-      }
-
-      .brand p {
-        display: none;
-      }
+      .player-row { grid-template-columns: 1fr; }
+      .status-group, .assignment-actions { justify-content: flex-start; }
+      .brand p { display: none; }
     }
   </style>
 </head>
 
 <body>
-  <header class="app-header">
-    <div class="header-inner">
-      <div class="brand">
-        <div class="brand-mark">AWK</div>
-        <div>
-          <h1>AWK</h1>
-          <p>Anwesenheitskontrolle Junioren</p>
-        </div>
-      </div>
-
-      <div class="header-controls">
-        <select class="role-select" id="trainerTeamSelect" aria-label="Trainerteam auswählen"></select>
-
-        <select class="role-select" id="roleSelect" aria-label="Ansicht auswählen">
-          <option value="trainer">Traineransicht</option>
-          <option value="juko">JuKo</option>
-        </select>
-      </div>
-    </div>
-  </header>
-
-  <main>
-    <nav class="tabs" aria-label="Hauptnavigation">
-      <button class="tab active" data-tab="events">Termine</button>
-      <button class="tab" data-tab="dashboard">Auswertung</button>
-      <button class="tab" data-tab="clean-dashboard">Bereinigte Auswertung</button>
-      <button class="tab" data-tab="manage">Termine verwalten</button>
-      <button class="tab" data-tab="admin">Spieler verwalten</button>
-    </nav>
-
-    <section class="panel active" id="events">
-      <div class="section-head">
-        <div>
-          <h2 id="eventsTitle">Meine Termine</h2>
-          <p id="eventsIntro">Wähle ein Training oder Spiel für die Anwesenheitskontrolle.</p>
-        </div>
-      </div>
-
-      <div class="filters card">
-        <label>
-          Team
-          <select id="teamFilter"></select>
-        </label>
-
-        <label>
-          Zeitraum
-          <select id="periodFilter">
-            <option value="all">Alle Termine</option>
-            <option value="upcoming">Kommende Termine</option>
-            <option value="past">Vergangene Termine</option>
-          </select>
-        </label>
-
-        <label>
-          Art
-          <select id="typeFilter">
-            <option value="all">Training und Spiel</option>
-            <option value="training">Nur Trainings</option>
-            <option value="match">Nur Spiele</option>
-          </select>
-        </label>
-      </div>
-
-      <div class="event-list" id="eventList"></div>
-    </section>
-
-    <section class="panel" id="attendance">
-      <button class="back-button" id="backToEvents">‹ Zurück zu den Terminen</button>
-
-      <div class="card">
-        <div class="attendance-head">
-          <div>
-            <h2 class="event-title" id="attendanceTitle"></h2>
-            <p class="event-subtitle" id="attendanceSubtitle"></p>
-          </div>
-
-          <div class="attendance-actions">
-            <button class="button button-secondary" id="markAllPresent">Alle anwesend</button>
-            <button class="button button-primary" id="saveAttendance">Speichern</button>
-          </div>
-        </div>
-
-        <div class="player-list" id="playerList"></div>
-        <div class="legend" id="statusLegend"></div>
-
-        <div class="attendance-actions" style="margin-top:18px">
-          <button class="button button-primary" id="saveAttendanceBottom">Speichern</button>
-        </div>
-      </div>
-    </section>
-
-    <section class="panel" id="dashboard">
-      <div class="section-head">
-        <div>
-          <h2 id="dashboardTitle">Auswertung</h2>
-          <p id="dashboardIntro">Alle erfassten Stati zählen in diese Quote.</p>
-        </div>
-
-        <button class="button button-secondary juko-only" id="exportCsv">CSV exportieren</button>
-      </div>
-
-      <div class="filters card">
-        <label>
-          Team
-          <select id="dashboardTeamFilter"></select>
-        </label>
-
-        <label>
-          Zeitraum
-          <select id="dashboardPeriodFilter">
-            <option value="all">Gesamte Saison</option>
-            <option value="30">Letzte 30 Tage</option>
-            <option value="90">Letzte 90 Tage</option>
-          </select>
-        </label>
-
-        <label>
-          Anzeige
-          <select id="dashboardTypeFilter">
-            <option value="all">Training und Spiel</option>
-            <option value="training">Nur Trainings</option>
-            <option value="match">Nur Spiele</option>
-          </select>
-        </label>
-      </div>
-
-      <div class="dashboard-grid" id="metricGrid"></div>
-
-      <div class="card table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Spieler</th>
-              <th>Team</th>
-              <th>Erfasste Termine</th>
-              <th>Anwesenheit</th>
-              <th>Unentschuldigt</th>
-            </tr>
-          </thead>
-          <tbody id="reportTable"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="panel" id="clean-dashboard">
-      <div class="section-head">
-        <div>
-          <h2>Bereinigte Auswertung</h2>
-          <p>Ferien, Verletzungen und nicht aufgebotene Spieler zählen nicht zur Anwesenheitsquote.</p>
-        </div>
-      </div>
-
-      <div class="notice">
-        Nicht berücksichtigt werden Ferien, Verletzt und Nicht aufgeboten.
-        Anwesend und Zu spät gelten als anwesend.
-        Entschuldigt, Krank und Unentschuldigt zählen als Abwesenheit.
-      </div>
-
-      <div class="filters card">
-        <label>
-          Team
-          <select id="cleanDashboardTeamFilter"></select>
-        </label>
-
-        <label>
-          Zeitraum
-          <select id="cleanDashboardPeriodFilter">
-            <option value="all">Gesamte Saison</option>
-            <option value="30">Letzte 30 Tage</option>
-            <option value="90">Letzte 90 Tage</option>
-          </select>
-        </label>
-
-        <label>
-          Anzeige
-          <select id="cleanDashboardTypeFilter">
-            <option value="all">Training und Spiel</option>
-            <option value="training">Nur Trainings</option>
-            <option value="match">Nur Spiele</option>
-          </select>
-        </label>
-      </div>
-
-      <div class="dashboard-grid" id="cleanMetricGrid"></div>
-
-      <div class="card table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Spieler</th>
-              <th>Team</th>
-              <th>Bewertete Termine</th>
-              <th>Anwesenheit</th>
-              <th>Nicht berücksichtigt</th>
-              <th>Unentschuldigt</th>
-            </tr>
-          </thead>
-          <tbody id="cleanReportTable"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="panel" id="manage">
-      <div class="section-head">
-        <div>
-          <h2>Termine verwalten</h2>
-          <p id="manageIntro">Einzelne Spiele oder wiederkehrende Trainings erfassen.</p>
-        </div>
-      </div>
-
-      <div class="notice" id="manageNotice"></div>
-
-      <div class="card">
-        <form id="eventForm">
-          <div class="form-grid">
-            <label>
-              Team
-              <select id="newEventTeam" required></select>
-            </label>
-
-            <label>
-              Art
-              <select id="newEventType" required>
-                <option value="training">Training</option>
-                <option value="match">Spiel</option>
-              </select>
-            </label>
-
-            <label>
-              Terminart
-              <select id="newEventMode" required>
-                <option value="single">Einzeltermin</option>
-                <option value="series">Wöchentliche Serie</option>
-              </select>
-            </label>
-
-            <label>
-              Titel
-              <input id="newEventTitle" required placeholder="Zum Beispiel Training D9">
-            </label>
-
-            <label>
-              Ort
-              <input id="newEventLocation" required placeholder="Zum Beispiel Sportplatz">
-            </label>
-
-            <label>
-              Startdatum
-              <input id="newEventStartDate" type="date" required>
-            </label>
-
-            <label>
-              Uhrzeit
-              <input id="newEventTime" type="time" required>
-            </label>
-
-            <label class="series-field">
-              Wiederholung
-              <select id="newEventInterval">
-                <option value="1">Jede Woche</option>
-                <option value="2">Alle 2 Wochen</option>
-              </select>
-            </label>
-
-            <label class="series-field">
-              Serienende
-              <input id="newEventEndDate" type="date">
-            </label>
-          </div>
-
-          <button class="button button-primary" type="submit">Termin hinzufügen</button>
-        </form>
-
-        <div class="admin-list" id="eventAdminList" style="margin-top:18px"></div>
-      </div>
-    </section>
-
-    <section class="panel" id="admin">
-      <div class="section-head">
-        <div>
-          <h2 id="adminTitle">Spieler verwalten</h2>
-          <p id="adminIntro">Hier kannst du Spieler deines ausgewählten Trainerteams hinzufügen oder verwalten.</p>
-        </div>
-      </div>
-
-      <div class="admin-layout">
-        <div class="card juko-only">
-          <h3>Neues Team</h3>
-
-          <form id="teamForm">
-            <div class="form-grid two-columns">
-              <label>
-                Teamname
-                <input id="newTeamName" required placeholder="Zum Beispiel C Junioren">
-              </label>
-
-              <label>
-                Trainer
-                <input id="newTeamTrainer" required placeholder="Vorname Nachname">
-              </label>
-            </div>
-
-            <button class="button button-primary" type="submit">Team hinzufügen</button>
-          </form>
-
-          <div class="admin-list" id="teamAdminList" style="margin-top:18px"></div>
-        </div>
-
-        <div class="card">
-          <h3>Neuer Spieler</h3>
-
-          <form id="playerForm">
-            <div class="form-grid two-columns">
-              <label>
-                Nachname Vorname
-                <input id="newPlayerName" required placeholder="Zum Beispiel Müller Noah">
-              </label>
-
-              <label>
-                Team
-                <select id="newPlayerTeam" required></select>
-              </label>
-            </div>
-
-            <button class="button button-primary" type="submit">Spieler hinzufügen</button>
-          </form>
-
-          <div class="notice juko-only" style="margin-top:18px">
-            <strong>Spieler per CSV importieren</strong><br>
-            Die CSV Datei braucht die Spalte <code>Name</code> im Format Nachname Vorname.
-            Die Spalte <code>Team</code> ist optional.
-            Ohne Teamangabe werden alle Spieler dem ausgewählten Standard Team zugeteilt.
-          </div>
-
-          <form class="juko-only" id="playerImportForm">
-            <div class="form-grid two-columns">
-              <label>
-                Standard Team
-                <select id="importPlayerTeam" required></select>
-              </label>
-
-              <label>
-                CSV Datei
-                <input id="playerCsvFile" type="file" accept=".csv,text/csv" required>
-              </label>
-            </div>
-
-            <button class="button button-secondary" type="submit">Spieler importieren</button>
-          </form>
-
-          <div class="admin-list" id="playerAdminList" style="margin-top:18px"></div>
-        </div>
-      </div>
-    </section>
-  </main>
-
+  <div id="root"></div>
   <div class="toast" id="toast" role="status"></div>
 
   <script>
     (() => {
-      const STORAGE_KEY = "awk-anwesenheit-v7";
-      const TRAINER_TEAM_KEY = "awk-trainer-team";
+      const STORAGE_KEY = "fch-verein-platform-v16";
+      const USER_KEY = "fch-simulated-user";
+      const ACTIVE_TEAM_KEY = "fch-active-team";
 
       const statuses = [
         { id: "present", label: "Anwesend", short: "A", color: "#198754", present: true },
@@ -936,50 +563,129 @@
         { id: "holiday", label: "Ferien", short: "F", color: "#0d8491", present: false }
       ];
 
-      const defaultData = {
-        teams: [
-          { id: "d9", name: "D9 Junioren", trainer: "Marco Keller" },
-          { id: "e", name: "E Junioren", trainer: "Sandro Meier" }
-        ],
-        players: [
-          { id: "p1", teamId: "d9", name: "Frei Liam" },
-          { id: "p2", teamId: "d9", name: "Müller Noah" },
-          { id: "p3", teamId: "d9", name: "Studer Milan" },
-          { id: "p4", teamId: "d9", name: "Weber Finn" },
-          { id: "p5", teamId: "e", name: "Huber Elia" },
-          { id: "p6", teamId: "e", name: "Baumann Luca" }
-        ],
-        events: [],
-        attendance: {}
+      const moduleConfig = {
+        "awk-junioren": {
+          title: "AWK Junioren",
+          subtitle: "Anwesenheitskontrolle der Juniorenteams",
+          icon: "👟",
+          type: "attendance",
+          teamType: "junioren"
+        },
+        "d-schiris": {
+          title: "D Junioren Schiris",
+          subtitle: "Schiedsrichtereinsätze für D Spiele",
+          icon: "📣",
+          type: "assignments",
+          category: "D Junioren Schiris"
+        },
+        "fsa-helfer": {
+          title: "FSA Helfer",
+          subtitle: "Helfer für Trainings der Fussballschule",
+          icon: "🎽",
+          type: "assignments",
+          category: "FSA Helfer"
+        },
+        "turnier": {
+          title: "Turnier Betreuer",
+          subtitle: "Schichten und Aufgaben an Turnieren",
+          icon: "🏆",
+          type: "assignments",
+          category: "Turnier"
+        },
+        "awk-aktive": {
+          title: "AWK Aktive",
+          subtitle: "Anwesenheitskontrolle der Aktiven Mannschaften",
+          icon: "⚽",
+          type: "attendance",
+          teamType: "aktive"
+        },
+        "events": {
+          title: "Events",
+          subtitle: "Helfer bei Vereinsanlässen",
+          icon: "🎉",
+          type: "assignments",
+          category: "Events"
+        }
       };
 
-      const $ = selector => document.querySelector(selector);
-      const $$ = selector => [...document.querySelectorAll(selector)];
+      const defaultData = {
+        teams: [
+          { id: "d9", name: "D9 Junioren", trainer: "Keller Marco", type: "junioren" },
+          { id: "e", name: "E Junioren", trainer: "Meier Sandro", type: "junioren" },
+          { id: "aktive1", name: "1. Mannschaft", trainer: "Brunner Thomas", type: "aktive" },
+          { id: "aktive2", name: "2. Mannschaft", trainer: "Gerber Stefan", type: "aktive" }
+        ],
+        contacts: [
+          { id: "c1", name: "Keller Marco" },
+          { id: "c2", name: "Meier Sandro" }
+        ],
+        players: [
+          { id: "p1", teamId: "d9", name: "Frei Liam", type: "junioren" },
+          { id: "p2", teamId: "d9", name: "Müller Noah", type: "junioren" },
+          { id: "p3", teamId: "e", name: "Weber Elia", type: "junioren" },
+          { id: "a1", teamId: "aktive1", name: "Meier Lukas", type: "aktive" },
+          { id: "a2", teamId: "aktive1", name: "Keller Jonas", type: "aktive" },
+          { id: "a3", teamId: "aktive2", name: "Fischer Marc", type: "aktive" }
+        ],
+        events: [],
+        attendance: {},
+        assignments: [
+          {
+            id: "asg-1",
+            title: "D9 weiss vs. FC Uster",
+            category: "D Junioren Schiris",
+            date: new Date(Date.now() + 86400000 * 3).toISOString().slice(0, 10),
+            time: "10:00",
+            neededCount: 1,
+            contactName: "Keller Marco",
+            status: "open",
+            linkToken: "d9-spiel-1"
+          },
+          {
+            id: "asg-2",
+            title: "FSA Training",
+            category: "FSA Helfer",
+            date: new Date(Date.now() + 86400000 * 2).toISOString().slice(0, 10),
+            neededHauptleitung: 1,
+            neededHelfer: 3,
+            status: "open",
+            linkToken: "fsa-training-1"
+          }
+        ],
+        assignmentSignups: []
+      };
+
+      const $ = (selector, context = document) => context.querySelector(selector);
+      const $$ = (selector, context = document) => [...context.querySelectorAll(selector)];
 
       const state = {
-        role: "trainer",
+        currentUser: localStorage.getItem(USER_KEY) || "juko",
+        activeModule: "dashboard",
+        activeTeamId: localStorage.getItem(ACTIVE_TEAM_KEY) || "",
         activeEventId: null,
-        trainerTeamId: localStorage.getItem(TRAINER_TEAM_KEY) || "",
         data: loadData()
       };
 
+      const broadcast = typeof BroadcastChannel !== "undefined"
+        ? new BroadcastChannel("fch-platform")
+        : null;
+
       function loadData() {
         try {
-          const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY));
+          const saved = JSON.parse(localStorage.getItem(STORAGE_KEY))
+            || JSON.parse(localStorage.getItem("fch-verein-platform-v15"))
+            || JSON.parse(localStorage.getItem("fch-verein-platform-v14"))
+            || JSON.parse(localStorage.getItem("fch-verein-platform-v13"));
 
-          if (
-            savedData &&
-            Array.isArray(savedData.teams) &&
-            Array.isArray(savedData.players) &&
-            Array.isArray(savedData.events)
-          ) {
-            savedData.attendance ||= {};
-            return savedData;
+          if (saved && Array.isArray(saved.teams) && Array.isArray(saved.players)) {
+            saved.events ||= [];
+            saved.attendance ||= {};
+            saved.assignments ||= defaultData.assignments;
+            saved.assignmentSignups ||= [];
+            saved.contacts ||= defaultData.contacts;
+            return saved;
           }
-        } catch {
-          return structuredClone(defaultData);
-        }
-
+        } catch {}
         return structuredClone(defaultData);
       }
 
@@ -992,16 +698,13 @@
       }
 
       function escapeHtml(value) {
-        const element = document.createElement("span");
-        element.textContent = String(value || "");
-        return element.innerHTML;
+        const el = document.createElement("span");
+        el.textContent = String(value || "");
+        return el.innerHTML;
       }
 
       function normalizeText(value) {
-        return String(value || "")
-          .trim()
-          .toLocaleLowerCase("de-CH")
-          .replace(/\s+/g, " ");
+        return String(value || "").trim().toLocaleLowerCase("de-CH").replace(/\s+/g, " ");
       }
 
       function currentDate() {
@@ -1021,172 +724,774 @@
         return statuses.find(status => status.id === statusId);
       }
 
-      function teamName(teamId) {
-        return state.data.teams.find(team => team.id === teamId)?.name || "Ohne Team";
+      function teamName(id) {
+        return state.data.teams.find(t => t.id === id)?.name || "Ohne Team";
       }
 
-      function trainerTeamId() {
-        const teamExists = state.data.teams.some(team => team.id === state.trainerTeamId);
+      function getTrainerTeam() {
+        if (state.currentUser.startsWith("trainer_")) {
+          const teamId = state.currentUser.replace("trainer_", "");
+          return state.data.teams.find(t => t.id === teamId) || null;
+        }
+        return null;
+      }
 
-        if (!teamExists) {
-          state.trainerTeamId = state.data.teams[0]?.id || "";
-          localStorage.setItem(TRAINER_TEAM_KEY, state.trainerTeamId);
+      function isJuKo() { return state.currentUser === "juko"; }
+      function isAdminAktive() { return state.currentUser === "admin_aktive"; }
+      function isAdminEvents() { return state.currentUser === "admin_events"; }
+      function isAnyAdmin() {
+        return isJuKo() || isAdminAktive() || isAdminEvents();
+      }
+
+      function canAccessModule(moduleId) {
+        const trainerTeam = getTrainerTeam();
+        if (trainerTeam) {
+          if (trainerTeam.type === "junioren") return moduleId === "awk-junioren";
+          if (trainerTeam.type === "aktive") return moduleId === "awk-aktive";
+          return false;
         }
 
-        return state.trainerTeamId;
-      }
-
-      function allowedTeamIds() {
-        if (state.role === "juko") {
-          return state.data.teams.map(team => team.id);
+        if (isJuKo()) {
+          return ["awk-junioren", "d-schiris", "fsa-helfer", "turnier"].includes(moduleId);
         }
 
-        return trainerTeamId() ? [trainerTeamId()] : [];
+        if (isAdminAktive()) {
+          return moduleId === "awk-aktive";
+        }
+
+        if (isAdminEvents()) {
+          return moduleId === "events";
+        }
+
+        return false;
       }
 
-      function refreshTrainerTeamSelect() {
-        const select = $("#trainerTeamSelect");
-        const selectedTeamId = trainerTeamId();
-
-        select.innerHTML = state.data.teams.map(team => `
-          <option value="${team.id}">${escapeHtml(team.name)}</option>
-        `).join("");
-
-        select.value = selectedTeamId;
+      function getAllowedTeamIds(type) {
+        const trainerTeam = getTrainerTeam();
+        if (trainerTeam) return trainerTeam.type === type ? [trainerTeam.id] : [];
+        if (isJuKo() && type === "junioren") return state.data.teams.filter(t => t.type === "junioren").map(t => t.id);
+        if (isAdminAktive() && type === "aktive") return state.data.teams.filter(t => t.type === "aktive").map(t => t.id);
+        return [];
       }
 
-      function fillTeamSelect(select, allLabel = "", selected = "") {
-        const currentValue = selected || select.value;
-        const teams = state.data.teams.filter(team => allowedTeamIds().includes(team.id));
+      function hasAttendanceEntriesForEvent(eventId) {
+        const att = state.data.attendance[eventId];
+        return att ? Object.values(att).some(Boolean) : false;
+      }
 
-        select.innerHTML =
-          (allLabel ? `<option value="all">${allLabel}</option>` : "") +
-          teams.map(team => `
-            <option value="${team.id}">${escapeHtml(team.name)}</option>
+      function hasAttendanceEntriesForPlayer(playerId) {
+        return Object.values(state.data.attendance).some(att => Boolean(att[playerId]));
+      }
+
+      function renderApp() {
+        if (isPublicRoute()) {
+          $("#root").innerHTML = `<div id="publicContent"></div>`;
+          renderPublicRoute();
+          return;
+        }
+
+        const trainerTeam = getTrainerTeam();
+        if (trainerTeam) state.activeTeamId = trainerTeam.id;
+
+        $("#root").innerHTML = `
+          <header class="app-header">
+            <div class="header-inner">
+              <div class="brand">
+                <div class="brand-mark">FCH</div>
+                <div>
+                  <h1 id="headerTitle">FCH App</h1>
+                  <p id="headerSubtitle">Modulauswahl</p>
+                </div>
+              </div>
+
+              <div class="header-controls">
+                <select class="role-select" id="userSelect" aria-label="Angemeldete Person">
+                  <optgroup label="Leitung">
+                    <option value="juko" ${state.currentUser === "juko" ? "selected" : ""}>Admin JuKo</option>
+                    <option value="admin_aktive" ${state.currentUser === "admin_aktive" ? "selected" : ""}>Admin Aktive</option>
+                    <option value="admin_events" ${state.currentUser === "admin_events" ? "selected" : ""}>Admin Events</option>
+                  </optgroup>
+                  <optgroup label="Trainer Junioren">
+                    ${state.data.teams.filter(t => t.type === "junioren").map(t => `
+                      <option value="trainer_${t.id}" ${state.currentUser === `trainer_${t.id}` ? "selected" : ""}>Trainer: ${escapeHtml(t.trainer)} (${escapeHtml(t.name)})</option>
+                    `).join("")}
+                  </optgroup>
+                  <optgroup label="Trainer Aktive">
+                    ${state.data.teams.filter(t => t.type === "aktive").map(t => `
+                      <option value="trainer_${t.id}" ${state.currentUser === `trainer_${t.id}` ? "selected" : ""}>Trainer: ${escapeHtml(t.trainer)} (${escapeHtml(t.name)})</option>
+                    `).join("")}
+                  </optgroup>
+                </select>
+
+                <select class="role-select hidden" id="teamSelect" aria-label="Team auswählen"></select>
+
+                <button class="button button-secondary" id="homeButton">Module</button>
+              </div>
+            </div>
+          </header>
+
+          <main>
+            <div id="moduleContent"></div>
+          </main>
+        `;
+
+        setupGlobalEvents();
+
+        if (state.activeModule === "dashboard" || !canAccessModule(state.activeModule)) {
+          renderDashboard();
+        } else {
+          renderModule(state.activeModule);
+        }
+      }
+
+      function setupGlobalEvents() {
+        $("#userSelect").addEventListener("change", event => {
+          state.currentUser = event.target.value;
+          localStorage.setItem(USER_KEY, state.currentUser);
+
+          const trainerTeam = getTrainerTeam();
+          if (trainerTeam) {
+            state.activeTeamId = trainerTeam.id;
+            localStorage.setItem(ACTIVE_TEAM_KEY, state.activeTeamId);
+            state.activeModule = trainerTeam.type === "junioren" ? "awk-junioren" : "awk-aktive";
+          } else {
+            state.activeTeamId = "";
+            localStorage.removeItem(ACTIVE_TEAM_KEY);
+            state.activeModule = "dashboard";
+          }
+
+          renderApp();
+        });
+
+        $("#homeButton").addEventListener("click", () => {
+          state.activeModule = "dashboard";
+          renderApp();
+        });
+
+        const teamSelect = $("#teamSelect");
+        teamSelect.addEventListener("change", event => {
+          state.activeTeamId = event.target.value;
+          localStorage.setItem(ACTIVE_TEAM_KEY, state.activeTeamId);
+          renderModule(state.activeModule);
+        });
+      }
+
+      function renderDashboard() {
+        state.activeModule = "dashboard";
+        $("#headerTitle").textContent = "FCH App";
+        $("#headerSubtitle").textContent = "Modulauswahl";
+        $("#teamSelect").classList.add("hidden");
+
+        const modules = Object.entries(moduleConfig).filter(([id]) => canAccessModule(id));
+
+        $("#moduleContent").innerHTML = `
+          <div class="section-head">
+            <div>
+              <h2>Verfügbare Module</h2>
+              <p>Wähle einen Bereich zum Starten aus.</p>
+            </div>
+          </div>
+
+          <div class="module-grid">
+            ${modules.map(([id, config]) => `
+              <div class="module-card">
+                <h3>${config.icon} ${config.title}</h3>
+                <p>${config.subtitle}</p>
+                <button class="button button-primary open-module-btn" data-module="${id}">Öffnen</button>
+              </div>
+            `).join("")}
+          </div>
+        `;
+
+        $$(".open-module-btn").forEach(button => {
+          button.addEventListener("click", () => {
+            state.activeModule = button.dataset.module;
+            renderModule(state.activeModule);
+          });
+        });
+      }
+
+      function renderModule(moduleId) {
+        state.activeModule = moduleId;
+        const config = moduleConfig[moduleId];
+
+        if (!config || !canAccessModule(moduleId)) {
+          renderDashboard();
+          return;
+        }
+
+        $("#headerTitle").textContent = config.title;
+        $("#headerSubtitle").textContent = config.subtitle;
+
+        if (config.type === "attendance") {
+          renderAttendanceModule(moduleId, config);
+        } else if (config.type === "assignments") {
+          renderAssignmentsModule(moduleId, config);
+        }
+      }
+
+      /* ATTENDANCE MODULE */
+
+      function renderAttendanceModule(moduleId, config) {
+        const type = config.teamType;
+        const allowedTeams = getAllowedTeamIds(type);
+        const trainerTeam = getTrainerTeam();
+
+        if (trainerTeam) {
+          state.activeTeamId = trainerTeam.id;
+        } else if (!state.activeTeamId || !allowedTeams.includes(state.activeTeamId)) {
+          state.activeTeamId = allowedTeams[0] || "";
+        }
+
+        const teamSelect = $("#teamSelect");
+        if (!trainerTeam && allowedTeams.length > 1) {
+          teamSelect.classList.remove("hidden");
+          teamSelect.innerHTML = allowedTeams.map(id => `
+            <option value="${id}" ${id === state.activeTeamId ? "selected" : ""}>${escapeHtml(teamName(id))}</option>
           `).join("");
+        } else {
+          teamSelect.classList.add("hidden");
+        }
 
-        const values = [...select.options].map(option => option.value);
+        const canCreateTeam = (type === "junioren" && isJuKo()) || (type === "aktive" && isAdminAktive());
 
-        select.value = values.includes(currentValue)
-          ? currentValue
-          : (allLabel ? "all" : teams[0]?.id || "");
+        $("#moduleContent").innerHTML = `
+          <nav class="tabs" aria-label="Navigation">
+            <button class="tab active" data-tab="events">Termine</button>
+            <button class="tab" data-tab="dashboard">Auswertung</button>
+            <button class="tab" data-tab="clean-dashboard">Bereinigte Auswertung</button>
+            <button class="tab" data-tab="manage">Termine verwalten</button>
+            <button class="tab" data-tab="players">Spieler verwalten</button>
+            ${canCreateTeam ? `<button class="tab" data-tab="teams">Teams verwalten</button>` : ""}
+          </nav>
+
+          <section class="panel active" id="events">
+            <div class="section-head">
+              <div>
+                <h2>Termine</h2>
+                <p>${trainerTeam ? `Termine für ${escapeHtml(trainerTeam.name)}` : "Wähle einen Termin für die Anwesenheitskontrolle."}</p>
+              </div>
+            </div>
+
+            <div class="filters card">
+              <label>
+                Zeitraum
+                <select id="periodFilter">
+                  <option value="all">Alle Termine</option>
+                  <option value="upcoming">Kommende Termine</option>
+                  <option value="past">Vergangene Termine</option>
+                </select>
+              </label>
+
+              <label>
+                Art
+                <select id="typeFilter">
+                  <option value="all">Alle Arten</option>
+                  <option value="training">Nur Trainings</option>
+                  <option value="match">Nur Spiele</option>
+                  <option value="tournament">Nur Turniere</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="event-list" id="eventList"></div>
+          </section>
+
+          <section class="panel" id="attendance">
+            <button class="back-button" id="backToEvents">‹ Zurück zu den Terminen</button>
+            <div class="card">
+              <div class="section-head" style="align-items:flex-start">
+                <div>
+                  <h2 id="attendanceTitle"></h2>
+                  <p id="attendanceSubtitle"></p>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <button class="button button-secondary" id="markAllPresent">Alle anwesend</button>
+                  <button class="button button-primary" id="saveAttendance">Speichern</button>
+                </div>
+              </div>
+              <div class="player-list" id="playerList"></div>
+              <div class="legend" id="statusLegend"></div>
+              <div style="margin-top:18px">
+                <button class="button button-primary" id="saveAttendanceBottom">Speichern</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel" id="dashboard">
+            <div class="section-head">
+              <div>
+                <h2>Auswertung</h2>
+                <p>Alle erfassten Stati zählen in diese Quote.</p>
+              </div>
+              <button class="button button-secondary" id="exportCsv">CSV exportieren</button>
+            </div>
+
+            <div class="filters card">
+              <label>
+                Zeitraum
+                <select id="dashboardPeriodFilter">
+                  <option value="all">Gesamte Saison</option>
+                  <option value="30">Letzte 30 Tage</option>
+                  <option value="90">Letzte 90 Tage</option>
+                </select>
+              </label>
+
+              <label>
+                Anzeige
+                <select id="dashboardTypeFilter">
+                  <option value="all">Alle Arten</option>
+                  <option value="training">Nur Trainings</option>
+                  <option value="match">Nur Spiele</option>
+                  <option value="tournament">Nur Turniere</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="dashboard-grid" id="metricGrid"></div>
+
+            <div class="card table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Spieler</th><th>Team</th><th>Erfasste Termine</th><th>Anwesenheit</th><th>Unentschuldigt</th></tr>
+                </thead>
+                <tbody id="reportTable"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel" id="clean-dashboard">
+            <div class="section-head">
+              <div>
+                <h2>Bereinigte Auswertung</h2>
+                <p>Ferien, Verletzungen und nicht aufgebotene Spieler zählen nicht zur Quote.</p>
+              </div>
+            </div>
+
+            <div class="notice">
+              Nicht berücksichtigt: Ferien, Verletzt, Nicht aufgeboten.<br>
+              Anwesend und Zu spät gelten als anwesend.
+            </div>
+
+            <div class="filters card">
+              <label>
+                Zeitraum
+                <select id="cleanDashboardPeriodFilter">
+                  <option value="all">Gesamte Saison</option>
+                  <option value="30">Letzte 30 Tage</option>
+                  <option value="90">Letzte 90 Tage</option>
+                </select>
+              </label>
+
+              <label>
+                Anzeige
+                <select id="cleanDashboardTypeFilter">
+                  <option value="all">Alle Arten</option>
+                  <option value="training">Nur Trainings</option>
+                  <option value="match">Nur Spiele</option>
+                  <option value="tournament">Nur Turniere</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="dashboard-grid" id="cleanMetricGrid"></div>
+
+            <div class="card table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Spieler</th><th>Team</th><th>Bewertete Termine</th><th>Anwesenheit</th><th>Nicht berücksichtigt</th><th>Unentschuldigt</th></tr>
+                </thead>
+                <tbody id="cleanReportTable"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel" id="manage">
+            <div class="section-head">
+              <div>
+                <h2>Termine erfassen</h2>
+                <p>Erfasse Trainings, Spiele oder Turniere.</p>
+              </div>
+            </div>
+
+            <div class="card">
+              <form id="eventForm">
+                <div class="form-grid">
+                  ${!trainerTeam && allowedTeams.length > 1 ? `
+                    <label>
+                      Team
+                      <select id="newEventTeam" required>
+                        ${allowedTeams.map(id => `<option value="${id}">${escapeHtml(teamName(id))}</option>`).join("")}
+                      </select>
+                    </label>
+                  ` : ""}
+
+                  <label>
+                    Art
+                    <select id="newEventType" required>
+                      <option value="training">Training</option>
+                      <option value="match">Spiel</option>
+                      <option value="tournament">Turnier</option>
+                    </select>
+                  </label>
+
+                  <label>
+                    Terminart
+                    <select id="newEventMode" required>
+                      <option value="single">Einzeltermin</option>
+                      <option value="series">Wöchentliche Serie</option>
+                    </select>
+                  </label>
+
+                  <label id="wrapMatchOpponent" class="hidden">
+                    Gegner
+                    <input id="newEventOpponent" placeholder="z.B. FC Uster">
+                  </label>
+
+                  <label id="wrapTournamentName" class="hidden">
+                    Turnier
+                    <input id="newEventTournamentName" placeholder="z.B. Hallenmasters">
+                  </label>
+
+                  <label id="wrapTournamentLocation" class="hidden">
+                    Turnier Ort
+                    <input id="newEventTournamentLocation" placeholder="z.B. Sporthalle Buchholz">
+                  </label>
+
+                  <label>
+                    Startdatum
+                    <input id="newEventStartDate" type="date" required>
+                  </label>
+
+                  <label class="series-field hidden">
+                    Wiederholung
+                    <select id="newEventInterval">
+                      <option value="1">Jede Woche</option>
+                      <option value="2">Alle 2 Wochen</option>
+                    </select>
+                  </label>
+
+                  <label class="series-field hidden">
+                    Serienende
+                    <input id="newEventEndDate" type="date">
+                  </label>
+                </div>
+
+                <button class="button button-primary" type="submit">Termin hinzufügen</button>
+              </form>
+
+              <div class="admin-list" id="eventAdminList" style="margin-top:18px"></div>
+            </div>
+          </section>
+
+          <section class="panel" id="players">
+            <div class="section-head">
+              <div>
+                <h2>Spieler verwalten</h2>
+                <p>${trainerTeam ? `Spieler für dein Team ${escapeHtml(trainerTeam.name)} erfassen.` : "Verwalte die Spieler der Teams."}</p>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3>Neuen Spieler erfassen</h3>
+              <form id="playerForm">
+                <div class="form-grid ${trainerTeam ? "" : "two-columns"}">
+                  <label>
+                    Nachname Vorname
+                    <input id="newPlayerName" required placeholder="Muster Max">
+                  </label>
+
+                  ${!trainerTeam ? `
+                    <label>
+                      Team
+                      <select id="newPlayerTeam" required>
+                        ${allowedTeams.map(id => `<option value="${id}">${escapeHtml(teamName(id))}</option>`).join("")}
+                      </select>
+                    </label>
+                  ` : ""}
+                </div>
+
+                <button class="button button-primary" type="submit">Spieler hinzufügen</button>
+              </form>
+
+              ${canCreateTeam ? `
+                <div class="notice" style="margin-top:18px">
+                  <strong>CSV importieren</strong><br>
+                  Spalten: <code>Name</code> (Format: Nachname Vorname) und optional <code>Team</code>.
+                </div>
+
+                <form id="playerImportForm">
+                  <div class="form-grid two-columns">
+                    <label>
+                      Standard Team
+                      <select id="importPlayerTeam" required>
+                        ${allowedTeams.map(id => `<option value="${id}">${escapeHtml(teamName(id))}</option>`).join("")}
+                      </select>
+                    </label>
+
+                    <label>
+                      CSV Datei
+                      <input id="playerCsvFile" type="file" accept=".csv,text/csv" required>
+                    </label>
+                  </div>
+
+                  <button class="button button-secondary" type="submit">Spieler importieren</button>
+                </form>
+              ` : ""}
+
+              <div class="admin-list" id="playerAdminList" style="margin-top:18px"></div>
+            </div>
+          </section>
+
+          ${canCreateTeam ? `
+            <section class="panel" id="teams">
+              <div class="section-head">
+                <div>
+                  <h2>Teams verwalten</h2>
+                  <p>Eröffne neue Mannschaften und weise die Trainer zu.</p>
+                </div>
+              </div>
+
+              <div class="card">
+                <h3>Neues Team eröffnen</h3>
+                <p class="admin-item-meta" style="margin-bottom:12px">Neu eröffnete Teams erscheinen sofort in allen Auswahlen.</p>
+                <form id="teamForm">
+                  <div class="form-grid two-columns">
+                    <label>
+                      Teamname
+                      <input id="newTeamName" required placeholder="z.B. Da Junioren">
+                    </label>
+
+                    <label>
+                      Trainer
+                      <input id="newTeamTrainer" required placeholder="Muster Max">
+                    </label>
+                  </div>
+
+                  <button class="button button-primary" type="submit">Team erstellen</button>
+                </form>
+
+                <div class="admin-list" id="teamAdminList" style="margin-top:18px"></div>
+              </div>
+            </section>
+          ` : ""}
+        `;
+
+        setupAttendanceEvents(moduleId, type, allowedTeams);
+        renderEvents(type, allowedTeams);
       }
 
-      function refreshTeamSelects() {
-        refreshTrainerTeamSelect();
+      function setupAttendanceEvents(moduleId, type, allowedTeams) {
+        $$(".tab").forEach(tab => {
+          tab.addEventListener("click", () => {
+            $$(".panel").forEach(p => p.classList.toggle("active", p.id === tab.dataset.tab));
+            $$(".tab").forEach(t => t.classList.toggle("active", t === tab));
 
-        fillTeamSelect($("#teamFilter"), "Alle Teams", $("#teamFilter").value);
-        fillTeamSelect($("#dashboardTeamFilter"), "Alle Teams", $("#dashboardTeamFilter").value);
-        fillTeamSelect($("#cleanDashboardTeamFilter"), "Alle Teams", $("#cleanDashboardTeamFilter").value);
-        fillTeamSelect($("#newEventTeam"), "", $("#newEventTeam").value);
-
-        const availableTeams = state.data.teams.filter(team => {
-          return allowedTeamIds().includes(team.id);
+            if (tab.dataset.tab === "events") renderEvents(type, allowedTeams);
+            if (tab.dataset.tab === "dashboard") renderAttendanceDashboard(type, allowedTeams);
+            if (tab.dataset.tab === "clean-dashboard") renderCleanDashboard(type, allowedTeams);
+            if (tab.dataset.tab === "manage") renderManageEvents(type, allowedTeams);
+            if (tab.dataset.tab === "players") renderAdminPlayers(type, allowedTeams);
+            if (tab.dataset.tab === "teams") renderAdminTeams(type);
+          });
         });
 
-        const availableTeamIds = availableTeams.map(team => team.id);
-        const oldPlayerTeamId = $("#newPlayerTeam").value;
+        $("#periodFilter")?.addEventListener("change", () => renderEvents(type, allowedTeams));
+        $("#typeFilter")?.addEventListener("change", () => renderEvents(type, allowedTeams));
 
-        $("#newPlayerTeam").innerHTML = availableTeams.map(team => `
-          <option value="${team.id}">${escapeHtml(team.name)}</option>
-        `).join("");
+        $("#dashboardPeriodFilter")?.addEventListener("change", () => renderAttendanceDashboard(type, allowedTeams));
+        $("#dashboardTypeFilter")?.addEventListener("change", () => renderAttendanceDashboard(type, allowedTeams));
 
-        $("#newPlayerTeam").value = availableTeamIds.includes(oldPlayerTeamId)
-          ? oldPlayerTeamId
-          : availableTeams[0]?.id || "";
+        $("#cleanDashboardPeriodFilter")?.addEventListener("change", () => renderCleanDashboard(type, allowedTeams));
+        $("#cleanDashboardTypeFilter")?.addEventListener("change", () => renderCleanDashboard(type, allowedTeams));
 
-        const oldImportTeamId = $("#importPlayerTeam").value;
-        const allTeamIds = state.data.teams.map(team => team.id);
-
-        $("#importPlayerTeam").innerHTML = state.data.teams.map(team => `
-          <option value="${team.id}">${escapeHtml(team.name)}</option>
-        `).join("");
-
-        $("#importPlayerTeam").value = allTeamIds.includes(oldImportTeamId)
-          ? oldImportTeamId
-          : state.data.teams[0]?.id || "";
-
-        if (state.role === "trainer") {
-          $("#teamFilter").value = trainerTeamId();
-          $("#dashboardTeamFilter").value = trainerTeamId();
-          $("#cleanDashboardTeamFilter").value = trainerTeamId();
-          $("#newEventTeam").value = trainerTeamId();
-          $("#newPlayerTeam").value = trainerTeamId();
-        }
-      }
-
-      function setRole() {
-        state.role = $("#roleSelect").value;
-        const isJuko = state.role === "juko";
-
-        $("#trainerTeamSelect").style.display = isJuko ? "none" : "";
-
-        $$(".juko-only").forEach(element => {
-          element.style.display = isJuko ? "" : "none";
+        $("#backToEvents")?.addEventListener("click", () => {
+          $(`.tab[data-tab="events"]`)?.click();
         });
 
-        $("#eventsTitle").textContent = isJuko ? "Alle Termine" : "Meine Termine";
+        $("#markAllPresent")?.addEventListener("click", () => {
+          const event = state.data.events.find(e => e.id === state.activeEventId);
+          if (!event) return;
 
-        $("#eventsIntro").textContent = isJuko
-          ? "Wähle einen Termin und kontrolliere die Anwesenheiten aller Teams als JuKo."
-          : "Wähle ein Training oder Spiel für dein ausgewähltes Team.";
+          state.data.attendance[event.id] ||= {};
+          state.data.players
+            .filter(p => p.teamId === event.teamId && p.type === type)
+            .forEach(p => state.data.attendance[event.id][p.id] = "present");
 
-        $("#dashboardTitle").textContent = isJuko
-          ? "Auswertung JuKo"
-          : "Auswertung meines Teams";
+          renderAttendancePlayers(type);
+        });
 
-        $("#dashboardIntro").textContent = isJuko
-          ? "Alle erfassten Stati zählen in diese Quote."
-          : "Auswertung aller erfassten Stati für dein ausgewähltes Team.";
+        $("#saveAttendance")?.addEventListener("click", () => { saveData(); showToast("Gespeichert."); });
+        $("#saveAttendanceBottom")?.addEventListener("click", () => { saveData(); showToast("Gespeichert."); });
 
-        $("#manageIntro").textContent = isJuko
-          ? "Einzelne Spiele oder wiederkehrende Trainings für alle Teams erfassen."
-          : "Hier kannst du einzelne Spiele oder wiederkehrende Trainings für dein Team erfassen.";
+        $("#exportCsv")?.addEventListener("click", () => exportCsv(type, allowedTeams));
 
-        $("#manageNotice").textContent = isJuko
-          ? "Als JuKo kannst du Termine für alle Teams verwalten."
-          : "Als Trainer kannst du Termine nur für das oben ausgewählte Trainerteam verwalten.";
+        const eventTypeSelect = $("#newEventType");
+        const updateEventFields = () => {
+          const val = eventTypeSelect.value;
+          const isMatch = val === "match";
+          const isTournament = val === "tournament";
 
-        $("#adminTitle").textContent = isJuko
-          ? "Teams und Spieler"
-          : "Spieler verwalten";
+          $("#wrapMatchOpponent")?.classList.toggle("hidden", !isMatch);
+          $("#newEventOpponent").required = isMatch;
 
-        $("#adminIntro").textContent = isJuko
-          ? "Als JuKo kannst du Teams und Spieler aller Mannschaften verwalten."
-          : "Hier kannst du Spieler deines ausgewählten Trainerteams hinzufügen oder verwalten.";
+          $("#wrapTournamentName")?.classList.toggle("hidden", !isTournament);
+          $("#newEventTournamentName").required = isTournament;
 
-        refreshTeamSelects();
-        renderEvents();
+          $("#wrapTournamentLocation")?.classList.toggle("hidden", !isTournament);
+          $("#newEventTournamentLocation").required = isTournament;
+        };
 
-        if ($("#admin").classList.contains("active")) {
-          renderAdmin();
-        }
+        eventTypeSelect?.addEventListener("change", updateEventFields);
+        if (eventTypeSelect) updateEventFields();
+
+        const eventMode = $("#newEventMode");
+        eventMode?.addEventListener("change", () => {
+          const isSeries = eventMode.value === "series";
+          $$(".series-field").forEach(f => f.classList.toggle("hidden", !isSeries));
+          $("#newEventEndDate").required = isSeries;
+        });
+
+        $("#eventForm")?.addEventListener("submit", event => {
+          event.preventDefault();
+          const targetTeamId = $("#newEventTeam")?.value || state.activeTeamId || allowedTeams[0];
+          if (!targetTeamId) { showToast("Kein Team verfügbar."); return; }
+
+          const selectedType = $("#newEventType").value;
+          const mode = $("#newEventMode").value;
+          const startDate = $("#newEventStartDate").value;
+          const endDate = $("#newEventEndDate").value;
+          const interval = Number($("#newEventInterval").value || 1);
+
+          let eventTitle = "Training";
+          let eventLocation = "";
+
+          if (selectedType === "match") {
+            const opponent = $("#newEventOpponent").value.trim();
+            eventTitle = `Spiel vs. ${opponent}`;
+          } else if (selectedType === "tournament") {
+            eventTitle = $("#newEventTournamentName").value.trim();
+            eventLocation = $("#newEventTournamentLocation").value.trim();
+          }
+
+          const dates = [];
+          if (mode === "single") {
+            dates.push(startDate);
+          } else {
+            const date = new Date(`${startDate}T12:00:00`);
+            const finalDate = new Date(`${endDate}T12:00:00`);
+            while (date <= finalDate && dates.length < 100) {
+              dates.push(date.toISOString().slice(0, 10));
+              date.setDate(date.getDate() + interval * 7);
+            }
+          }
+
+          dates.forEach(d => {
+            state.data.events.push({
+              id: createId("event"),
+              teamId: targetTeamId,
+              type: selectedType,
+              title: eventTitle,
+              location: eventLocation,
+              date: d
+            });
+          });
+
+          saveData();
+          event.target.reset();
+          updateEventFields();
+          renderManageEvents(type, allowedTeams);
+          renderEvents(type, allowedTeams);
+          showToast(dates.length === 1 ? "Termin erstellt." : `${dates.length} Termine erstellt.`);
+        });
+
+        $("#teamForm")?.addEventListener("submit", event => {
+          event.preventDefault();
+          const name = $("#newTeamName").value.trim();
+          const trainer = $("#newTeamTrainer").value.trim();
+          if (!name || !trainer) return;
+
+          const exists = state.data.teams.some(t => normalizeText(t.name) === normalizeText(name));
+          if (exists) { showToast("Dieses Team existiert bereits."); return; }
+
+          state.data.teams.push({
+            id: createId("team"),
+            name,
+            trainer,
+            type
+          });
+
+          saveData();
+          event.target.reset();
+          renderApp();
+          showToast(`Team ${name} erfolgreich eröffnet.`);
+        });
+
+        $("#playerForm")?.addEventListener("submit", event => {
+          event.preventDefault();
+          const name = $("#newPlayerName").value.trim();
+          const trainerTeam = getTrainerTeam();
+          const teamId = trainerTeam ? trainerTeam.id : $("#newPlayerTeam")?.value;
+          if (!name || !teamId) return;
+
+          state.data.players.push({ id: createId("player"), teamId, name, type });
+          saveData();
+          $("#newPlayerName").value = "";
+          renderAdminPlayers(type, allowedTeams);
+          showToast("Spieler hinzugefügt.");
+        });
+
+        $("#playerImportForm")?.addEventListener("submit", event => {
+          event.preventDefault();
+          const file = $("#playerCsvFile").files[0];
+          const fallbackTeamId = $("#importPlayerTeam").value;
+          if (!file || !fallbackTeamId) return;
+
+          const reader = new FileReader();
+          reader.onload = () => {
+            const rows = parseCsv(String(reader.result));
+            let imported = 0;
+            rows.forEach((row, idx) => {
+              if (idx === 0 && row[0]?.toLowerCase().includes("name")) return;
+              const name = row[0]?.trim();
+              if (name) {
+                state.data.players.push({ id: createId("player"), teamId: fallbackTeamId, name, type });
+                imported++;
+              }
+            });
+            saveData();
+            renderAdminPlayers(type, allowedTeams);
+            showToast(`${imported} Spieler importiert.`);
+          };
+          reader.readAsText(file);
+        });
       }
 
-      function renderEvents() {
-        const selectedTeam = $("#teamFilter").value;
-        const selectedPeriod = $("#periodFilter").value;
-        const selectedType = $("#typeFilter").value;
+      function renderEvents(type, allowedTeams) {
+        const selectedPeriod = $("#periodFilter")?.value || "all";
+        const selectedType = $("#typeFilter")?.value || "all";
 
         const events = state.data.events
           .filter(event => {
-            const roleMatch = allowedTeamIds().includes(event.teamId);
-            const teamMatch = selectedTeam === "all" || event.teamId === selectedTeam;
+            const teamMatch = allowedTeams.includes(event.teamId) && (!state.activeTeamId || event.teamId === state.activeTeamId);
             const typeMatch = selectedType === "all" || event.type === selectedType;
-
-            const periodMatch =
-              selectedPeriod === "all" ||
+            const periodMatch = selectedPeriod === "all" ||
               (selectedPeriod === "upcoming" && event.date >= currentDate()) ||
               (selectedPeriod === "past" && event.date < currentDate());
-
-            return roleMatch && teamMatch && typeMatch && periodMatch;
+            return teamMatch && typeMatch && periodMatch;
           })
-          .sort((a, b) => `${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`));
+          .sort((a, b) => a.date.localeCompare(b.date));
 
-        $("#eventList").innerHTML = events.length
+        const listEl = $("#eventList");
+        if (!listEl) return;
+
+        const typeLabels = { training: "Training", match: "Spiel", tournament: "Turnier" };
+
+        listEl.innerHTML = events.length
           ? events.map(event => {
               const date = new Date(`${event.date}T12:00:00`);
               const count = Object.keys(state.data.attendance[event.id] || {}).length;
+              const locPart = event.location ? ` · Ort: ${escapeHtml(event.location)}` : "";
 
               return `
                 <button class="event-button" data-event-id="${event.id}">
@@ -1194,74 +1499,57 @@
                     <strong>${String(date.getDate()).padStart(2, "0")}</strong>
                     <span>${date.toLocaleDateString("de-CH", { month: "short" })}</span>
                   </span>
-
                   <span>
-                    <span class="event-name">${escapeHtml(event.title)}</span>
+                    <span class="event-name">${escapeHtml(event.title)} (${escapeHtml(teamName(event.teamId))})</span>
                     <span class="event-meta">
-                      ${event.type === "training" ? "Training" : "Spiel"} ·
-                      ${event.time} ·
-                      ${escapeHtml(event.location)} ·
-                      ${count} erfasst
+                      ${typeLabels[event.type] || "Termin"}${locPart} · ${count} erfasst
                     </span>
                   </span>
-
                   <span class="event-arrow">›</span>
                 </button>
               `;
             }).join("")
-          : `<div class="card empty">Keine passenden Termine gefunden.</div>`;
+          : `<div class="card empty">Keine passenden Termine vorhanden.</div>`;
 
-        $$(".event-button").forEach(button => {
-          button.addEventListener("click", () => openAttendance(button.dataset.eventId));
+        $$(".event-button", listEl).forEach(btn => {
+          btn.addEventListener("click", () => openAttendance(btn.dataset.eventId, type));
         });
       }
 
-      function openAttendance(eventId) {
-        const event = state.data.events.find(item => item.id === eventId);
-
-        if (!event || !allowedTeamIds().includes(event.teamId)) {
-          return;
-        }
+      function openAttendance(eventId, type) {
+        const event = state.data.events.find(e => e.id === eventId);
+        if (!event) return;
 
         state.activeEventId = eventId;
         state.data.attendance[eventId] ||= {};
 
+        const locPart = event.location ? ` · Ort: ${event.location}` : "";
         $("#attendanceTitle").textContent = event.title;
-        $("#attendanceSubtitle").textContent =
-          `${formatDate(event.date)} · ${event.time} · ${teamName(event.teamId)} · ${event.location}`;
+        $("#attendanceSubtitle").textContent = `${formatDate(event.date)} · ${teamName(event.teamId)}${locPart}`;
 
-        renderPlayers();
-        showPanel("attendance");
+        $$(".panel").forEach(p => p.classList.toggle("active", p.id === "attendance"));
+        renderAttendancePlayers(type);
       }
 
-      function renderPlayers() {
-        const event = state.data.events.find(item => item.id === state.activeEventId);
-
-        if (!event) {
-          showPanel("events");
-          return;
-        }
+      function renderAttendancePlayers(type) {
+        const event = state.data.events.find(e => e.id === state.activeEventId);
+        if (!event) return;
 
         const attendance = state.data.attendance[event.id] || {};
-
         const players = state.data.players
-          .filter(player => player.teamId === event.teamId)
+          .filter(p => p.teamId === event.teamId && p.type === type)
           .sort((a, b) => a.name.localeCompare(b.name, "de-CH"));
 
         $("#playerList").innerHTML = players.length
           ? players.map(player => {
               const activeStatus = attendance[player.id] || "";
-
               return `
                 <div class="player-row">
                   <div>
                     <div class="player-name">${escapeHtml(player.name)}</div>
-                    <div class="player-note">
-                      ${getStatus(activeStatus)?.label || "Noch nicht erfasst"}
-                    </div>
+                    <div class="player-note">${getStatus(activeStatus)?.label || "Noch nicht erfasst"}</div>
                   </div>
-
-                  <div class="status-group" aria-label="Status für ${escapeHtml(player.name)}">
+                  <div class="status-group">
                     ${statuses.map(status => `
                       <button
                         class="status-button ${activeStatus === status.id ? "active" : ""}"
@@ -1275,123 +1563,74 @@
                 </div>
               `;
             }).join("")
-          : `<div class="empty">Für dieses Team sind noch keine Spieler erfasst.</div>`;
+          : `<div class="empty">Keine Spieler für dieses Team vorhanden.</div>`;
 
         $("#statusLegend").innerHTML = statuses.map(status => `
-          <span>
-            <i class="dot" style="--dot-color:${status.color}"></i>
-            ${status.short} ${status.label}
-          </span>
+          <span><i class="dot" style="--dot-color:${status.color}"></i> ${status.short} ${status.label}</span>
         `).join("");
 
-        $$(".status-button").forEach(button => {
-          button.addEventListener("click", () => {
-            const playerId = button.dataset.playerId;
-            const statusId = button.dataset.status;
-            const currentStatus = state.data.attendance[state.activeEventId][playerId];
-
-            if (currentStatus === statusId) {
+        $$(".status-button").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const playerId = btn.dataset.playerId;
+            const statusId = btn.dataset.status;
+            const current = state.data.attendance[state.activeEventId][playerId];
+            if (current === statusId) {
               delete state.data.attendance[state.activeEventId][playerId];
             } else {
               state.data.attendance[state.activeEventId][playerId] = statusId;
             }
-
-            renderPlayers();
+            renderAttendancePlayers(type);
           });
         });
       }
 
-      function showPanel(id) {
-        $$(".panel").forEach(panel => {
-          panel.classList.toggle("active", panel.id === id);
-        });
-
-        $$(".tab").forEach(tab => {
-          tab.classList.toggle("active", tab.dataset.tab === id);
-        });
-
-        if (id === "dashboard") renderDashboard();
-        if (id === "clean-dashboard") renderCleanDashboard();
-        if (id === "manage") renderManage();
-        if (id === "admin") renderAdmin();
+      function renderAttendanceDashboard(type, allowedTeams) {
+        const period = $("#dashboardPeriodFilter")?.value || "all";
+        const eventType = $("#dashboardTypeFilter")?.value || "all";
+        const events = getFilteredEvents(allowedTeams, period, eventType);
+        const rows = getReportRows(events, type, allowedTeams);
+        renderDashboardContent("#metricGrid", "#reportTable", events, rows, false);
       }
 
-      function getFilteredEvents(teamId, period, type) {
-        const cutoff = period === "all"
-          ? null
-          : new Date(Date.now() - Number(period) * 86400000);
+      function renderCleanDashboard(type, allowedTeams) {
+        const period = $("#cleanDashboardPeriodFilter")?.value || "all";
+        const eventType = $("#cleanDashboardTypeFilter")?.value || "all";
+        const events = getFilteredEvents(allowedTeams, period, eventType);
+        const rows = getReportRows(events, type, allowedTeams, ["holiday", "injured", "notCalled"]);
+        renderDashboardContent("#cleanMetricGrid", "#cleanReportTable", events, rows, true);
+      }
 
+      function getFilteredEvents(allowedTeams, period, eventType) {
+        const cutoff = period === "all" ? null : new Date(Date.now() - Number(period) * 86400000);
         return state.data.events.filter(event => {
-          const roleMatch = allowedTeamIds().includes(event.teamId);
-          const teamMatch = teamId === "all" || event.teamId === teamId;
-          const typeMatch = type === "all" || event.type === type;
+          const teamMatch = allowedTeams.includes(event.teamId) && (!state.activeTeamId || event.teamId === state.activeTeamId);
+          const typeMatch = eventType === "all" || event.type === eventType;
           const dateMatch = !cutoff || new Date(`${event.date}T12:00:00`) >= cutoff;
-
-          return roleMatch && teamMatch && typeMatch && dateMatch;
+          return teamMatch && typeMatch && dateMatch;
         });
       }
 
-      function getReportRows(events, teamId, excludedStatuses = []) {
+      function getReportRows(events, type, allowedTeams, excludedStatuses = []) {
         return state.data.players
-          .filter(player => {
-            return allowedTeamIds().includes(player.teamId) &&
-              (teamId === "all" || player.teamId === teamId);
-          })
+          .filter(p => p.type === type && allowedTeams.includes(p.teamId) && (!state.activeTeamId || p.teamId === state.activeTeamId))
           .map(player => {
-            const statusesForPlayer = events
-              .filter(event => event.teamId === player.teamId)
-              .map(event => state.data.attendance[event.id]?.[player.id])
-              .filter(Boolean);
-
-            const excluded = statusesForPlayer.filter(status => {
-              return excludedStatuses.includes(status);
-            }).length;
-
-            const ratedStatuses = statusesForPlayer.filter(status => {
-              return !excludedStatuses.includes(status);
-            });
-
-            const present = ratedStatuses.filter(status => getStatus(status)?.present).length;
-            const missing = ratedStatuses.filter(status => status === "missing").length;
-            const rate = ratedStatuses.length
-              ? Math.round((present / ratedStatuses.length) * 100)
-              : null;
+            const playerEvents = events.filter(e => e.teamId === player.teamId);
+            const statusesForPlayer = playerEvents.map(e => state.data.attendance[e.id]?.[player.id]).filter(Boolean);
+            const excluded = statusesForPlayer.filter(s => excludedStatuses.includes(s)).length;
+            const rated = statusesForPlayer.filter(s => !excludedStatuses.includes(s));
+            const present = rated.filter(s => getStatus(s)?.present).length;
+            const missing = rated.filter(s => s === "missing").length;
 
             return {
               player,
               recorded: statusesForPlayer.length,
               excluded,
-              rated: ratedStatuses.length,
+              rated: rated.length,
               present,
               missing,
-              rate
+              rate: rated.length ? Math.round((present / rated.length) * 100) : null
             };
           });
-      }
-
-      function renderDashboard() {
-        const teamId = $("#dashboardTeamFilter").value;
-        const period = $("#dashboardPeriodFilter").value;
-        const type = $("#dashboardTypeFilter").value;
-        const events = getFilteredEvents(teamId, period, type);
-        const rows = getReportRows(events, teamId);
-
-        renderDashboardContent("#metricGrid", "#reportTable", events, rows, false);
-      }
-
-      function renderCleanDashboard() {
-        const teamId = $("#cleanDashboardTeamFilter").value;
-        const period = $("#cleanDashboardPeriodFilter").value;
-        const type = $("#cleanDashboardTypeFilter").value;
-        const events = getFilteredEvents(teamId, period, type);
-
-        const rows = getReportRows(events, teamId, [
-          "holiday",
-          "injured",
-          "notCalled"
-        ]);
-
-        renderDashboardContent("#cleanMetricGrid", "#cleanReportTable", events, rows, true);
       }
 
       function renderDashboardContent(metricSelector, tableSelector, events, rows, cleaned) {
@@ -1401,791 +1640,1199 @@
         const totalExcluded = rows.reduce((sum, row) => sum + row.excluded, 0);
         const rate = totalRated ? Math.round((totalPresent / totalRated) * 100) : 0;
 
-        $(metricSelector).innerHTML = cleaned
-          ? `
-            <div class="card metric">
-              <strong>${events.length}</strong>
-              <span>Termine im Filter</span>
-            </div>
-            <div class="card metric">
-              <strong>${totalRated}</strong>
-              <span>Bewertete Einträge</span>
-            </div>
-            <div class="card metric">
-              <strong>${rate}%</strong>
-              <span>Bereinigte Quote</span>
-            </div>
-            <div class="card metric">
-              <strong>${totalExcluded}</strong>
-              <span>Nicht berücksichtigt</span>
-            </div>
-          `
-          : `
-            <div class="card metric">
-              <strong>${events.length}</strong>
-              <span>Termine im Filter</span>
-            </div>
-            <div class="card metric">
-              <strong>${totalRated}</strong>
-              <span>Erfasste Einträge</span>
-            </div>
-            <div class="card metric">
-              <strong>${rate}%</strong>
-              <span>Anwesenheitsquote</span>
-            </div>
-            <div class="card metric">
-              <strong>${totalMissing}</strong>
-              <span>Unentschuldigt</span>
+        const metricEl = $(metricSelector);
+        if (metricEl) {
+          metricEl.innerHTML = cleaned ? `
+            <div class="card metric"><strong>${events.length}</strong><span>Termine</span></div>
+            <div class="card metric"><strong>${totalRated}</strong><span>Bewertet</span></div>
+            <div class="card metric"><strong>${rate}%</strong><span>Bereinigt</span></div>
+            <div class="card metric"><strong>${totalExcluded}</strong><span>Ausgenommen</span></div>
+          ` : `
+            <div class="card metric"><strong>${events.length}</strong><span>Termine</span></div>
+            <div class="card metric"><strong>${totalRated}</strong><span>Einträge</span></div>
+            <div class="card metric"><strong>${rate}%</strong><span>Quote</span></div>
+            <div class="card metric"><strong>${totalMissing}</strong><span>Unentschuldigt</span></div>
+          `;
+        }
+
+        const tableEl = $(tableSelector);
+        if (tableEl) {
+          tableEl.innerHTML = rows.map(row => {
+            const badgeClass = row.rate === null ? "warn" : row.rate >= 85 ? "good" : row.rate >= 70 ? "warn" : "bad";
+            const rateLabel = row.rate === null ? "Keine Daten" : `${row.rate}%`;
+            return cleaned ? `
+              <tr>
+                <td>${escapeHtml(row.player.name)}</td>
+                <td>${escapeHtml(teamName(row.player.teamId))}</td>
+                <td>${row.rated}</td>
+                <td><span class="badge ${badgeClass}">${rateLabel}</span></td>
+                <td>${row.excluded}</td>
+                <td>${row.missing}</td>
+              </tr>
+            ` : `
+              <tr>
+                <td>${escapeHtml(row.player.name)}</td>
+                <td>${escapeHtml(teamName(row.player.teamId))}</td>
+                <td>${row.recorded}</td>
+                <td><span class="badge ${badgeClass}">${rateLabel}</span></td>
+                <td>${row.missing}</td>
+              </tr>
+            `;
+          }).join("");
+        }
+      }
+
+      function renderManageEvents(type, allowedTeams) {
+        const events = state.data.events
+          .filter(e => allowedTeams.includes(e.teamId) && (!state.activeTeamId || e.teamId === state.activeTeamId))
+          .sort((a, b) => a.date.localeCompare(b.date));
+
+        const listEl = $("#eventAdminList");
+        if (!listEl) return;
+
+        const isTrainer = Boolean(getTrainerTeam());
+        const typeLabels = { training: "Training", match: "Spiel", tournament: "Turnier" };
+
+        listEl.innerHTML = events.length ? events.map(event => {
+          const hasEntries = hasAttendanceEntriesForEvent(event.id);
+          const disabled = isTrainer && hasEntries;
+          const locPart = event.location ? ` · Ort: ${escapeHtml(event.location)}` : "";
+
+          return `
+            <div class="admin-item">
+              <div>
+                <div class="event-name">${escapeHtml(event.title)}</div>
+                <div class="admin-item-meta">${teamName(event.teamId)} · ${typeLabels[event.type] || "Termin"} · ${formatDate(event.date)}${locPart} · ${hasEntries ? "Bereits Anwesenheiten erfasst" : "Noch keine Einträge"}</div>
+              </div>
+              <button class="small-button delete-event" data-id="${event.id}" ${disabled ? "disabled title='Trainer können Termine mit Einträgen nicht löschen'" : ""}>
+                ${disabled ? "Gesperrt" : "Löschen"}
+              </button>
             </div>
           `;
-
-        $(tableSelector).innerHTML = rows
-          .sort((a, b) => {
-            if (a.rate === null) return 1;
-            if (b.rate === null) return -1;
-            return a.rate - b.rate;
-          })
-          .map(row => {
-            const badgeClass = row.rate === null
-              ? "warn"
-              : row.rate >= 85
-                ? "good"
-                : row.rate >= 70
-                  ? "warn"
-                  : "bad";
-
-            const rateLabel = row.rate === null ? "Keine Daten" : `${row.rate}%`;
-
-            return cleaned
-              ? `
-                <tr>
-                  <td>${escapeHtml(row.player.name)}</td>
-                  <td>${escapeHtml(teamName(row.player.teamId))}</td>
-                  <td>${row.rated}</td>
-                  <td><span class="badge ${badgeClass}">${rateLabel}</span></td>
-                  <td>${row.excluded}</td>
-                  <td>${row.missing}</td>
-                </tr>
-              `
-              : `
-                <tr>
-                  <td>${escapeHtml(row.player.name)}</td>
-                  <td>${escapeHtml(teamName(row.player.teamId))}</td>
-                  <td>${row.recorded}</td>
-                  <td><span class="badge ${badgeClass}">${rateLabel}</span></td>
-                  <td>${row.missing}</td>
-                </tr>
-              `;
-          }).join("");
-      }
-
-      function hasAttendanceEntries(eventId) {
-        return Object.values(state.data.attendance[eventId] || {}).some(status => {
-          return Boolean(status);
-        });
-      }
-
-      function renderManage() {
-        refreshTeamSelects();
-
-        const events = state.data.events
-          .filter(event => allowedTeamIds().includes(event.teamId))
-          .sort((a, b) => `${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`));
-
-        $("#eventAdminList").innerHTML = events.length
-          ? events.map(event => {
-              const eventHasAttendanceEntries = hasAttendanceEntries(event.id);
-              const deleteDisabled = state.role === "trainer" && eventHasAttendanceEntries;
-
-              return `
-                <div class="admin-item">
-                  <div>
-                    <div class="admin-item-title">${escapeHtml(event.title)}</div>
-                    <div class="admin-item-meta">
-                      ${escapeHtml(teamName(event.teamId))} ·
-                      ${event.type === "training" ? "Training" : "Spiel"} ·
-                      ${formatDate(event.date)} ·
-                      ${event.time} ·
-                      ${escapeHtml(event.location)}
-                      ${deleteDisabled ? " · Anwesenheiten bereits erfasst" : ""}
-                    </div>
-                  </div>
-
-                  <button
-                    class="small-button delete-event"
-                    data-event-id="${event.id}"
-                    ${deleteDisabled ? "disabled" : ""}
-                    title="${deleteDisabled ? "Dieser Termin enthält bereits Anwesenheitseinträge und kann nur durch die JuKo gelöscht werden." : "Termin löschen"}"
-                    style="${deleteDisabled ? "opacity:.45;" : ""}"
-                  >
-                    Löschen
-                  </button>
-                </div>
-              `;
-            }).join("")
-          : `<div class="empty">Noch keine Termine vorhanden.</div>`;
-
-        $$(".delete-event").forEach(button => {
-          button.addEventListener("click", () => deleteEvent(button.dataset.eventId));
-        });
-      }
-
-      function playerHasAttendanceEntries(playerId) {
-        return Object.values(state.data.attendance).some(attendance => {
-          return Boolean(attendance[playerId]);
-        });
-      }
-
-      function renderAdmin() {
-        refreshTeamSelects();
-
-        if (state.role === "juko") {
-          $("#teamAdminList").innerHTML = state.data.teams.length
-            ? state.data.teams.map(team => {
-                const playerCount = state.data.players.filter(player => {
-                  return player.teamId === team.id;
-                }).length;
-
-                return `
-                  <div class="admin-item">
-                    <div>
-                      <div class="admin-item-title">${escapeHtml(team.name)}</div>
-                      <div class="admin-item-meta">
-                        Trainer: ${escapeHtml(team.trainer)} · ${playerCount} Spieler
-                      </div>
-                    </div>
-
-                    <button class="small-button delete-team" data-team-id="${team.id}">
-                      Löschen
-                    </button>
-                  </div>
-                `;
-              }).join("")
-            : `<div class="empty">Noch keine Teams vorhanden.</div>`;
-        }
-
-        const visiblePlayers = state.data.players
-          .filter(player => allowedTeamIds().includes(player.teamId))
-          .sort((a, b) => a.name.localeCompare(b.name, "de-CH"));
-
-        $("#playerAdminList").innerHTML = visiblePlayers.length
-          ? visiblePlayers.map(player => {
-              const hasAttendanceEntries = playerHasAttendanceEntries(player.id);
-              const deleteDisabled = state.role === "trainer" && hasAttendanceEntries;
-
-              return `
-                <div class="admin-item">
-                  <div>
-                    <div class="admin-item-title">${escapeHtml(player.name)}</div>
-                    <div class="admin-item-meta">
-                      ${escapeHtml(teamName(player.teamId))}
-                      ${deleteDisabled ? " · Bereits bei Terminen erfasst" : ""}
-                    </div>
-                  </div>
-
-                  <button
-                    class="small-button delete-player"
-                    data-player-id="${player.id}"
-                    ${deleteDisabled ? "disabled" : ""}
-                    title="${deleteDisabled ? "Dieser Spieler hat bereits Anwesenheitseinträge und kann nur durch die JuKo gelöscht werden." : "Spieler löschen"}"
-                    style="${deleteDisabled ? "opacity:.45;" : ""}"
-                  >
-                    Löschen
-                  </button>
-                </div>
-              `;
-            }).join("")
-          : `<div class="empty">Für dieses Team sind noch keine Spieler vorhanden.</div>`;
-
-        $$(".delete-team").forEach(button => {
-          button.addEventListener("click", () => deleteTeam(button.dataset.teamId));
-        });
-
-        $$(".delete-player").forEach(button => {
-          button.addEventListener("click", () => deletePlayer(button.dataset.playerId));
-        });
-      }
-
-      function deleteEvent(eventId) {
-        const event = state.data.events.find(item => item.id === eventId);
-
-        if (!event || !allowedTeamIds().includes(event.teamId)) {
-          return;
-        }
-
-        if (state.role === "trainer" && hasAttendanceEntries(eventId)) {
-          showToast("Dieser Termin enthält bereits Anwesenheitseinträge und kann nur durch die JuKo gelöscht werden.");
-          return;
-        }
-
-        if (!confirm(`${event.title} vom ${formatDate(event.date)} wirklich löschen?`)) {
-          return;
-        }
-
-        state.data.events = state.data.events.filter(item => item.id !== eventId);
-        delete state.data.attendance[eventId];
-
-        saveData();
-        renderManage();
-        renderEvents();
-        showToast("Termin wurde gelöscht.");
-      }
-
-      function deletePlayer(playerId) {
-        const player = state.data.players.find(item => item.id === playerId);
-
-        if (!player) {
-          return;
-        }
-
-        if (!allowedTeamIds().includes(player.teamId)) {
-          showToast("Du hast keine Berechtigung für diesen Spieler.");
-          return;
-        }
-
-        if (state.role === "trainer" && playerHasAttendanceEntries(playerId)) {
-          showToast("Dieser Spieler hat bereits Anwesenheitseinträge und kann nur durch die JuKo gelöscht werden.");
-          return;
-        }
-
-        if (!confirm(`${player.name} wirklich löschen?`)) {
-          return;
-        }
-
-        state.data.players = state.data.players.filter(item => item.id !== playerId);
-
-        Object.values(state.data.attendance).forEach(attendance => {
-          delete attendance[playerId];
-        });
-
-        saveData();
-        renderAdmin();
-        showToast("Spieler wurde gelöscht.");
-      }
-
-      function deleteTeam(teamId) {
-        const team = state.data.teams.find(item => item.id === teamId);
-
-        if (!team || state.role !== "juko") {
-          return;
-        }
-
-        if (!confirm(`${team.name} inklusive Spielern und Terminen wirklich löschen?`)) {
-          return;
-        }
-
-        const eventIds = state.data.events
-          .filter(event => event.teamId === teamId)
-          .map(event => event.id);
-
-        state.data.teams = state.data.teams.filter(item => item.id !== teamId);
-        state.data.players = state.data.players.filter(player => player.teamId !== teamId);
-        state.data.events = state.data.events.filter(event => event.teamId !== teamId);
-
-        eventIds.forEach(eventId => {
-          delete state.data.attendance[eventId];
-        });
-
-        if (state.trainerTeamId === teamId) {
-          state.trainerTeamId = state.data.teams[0]?.id || "";
-          localStorage.setItem(TRAINER_TEAM_KEY, state.trainerTeamId);
-        }
-
-        saveData();
-        refreshTeamSelects();
-        renderAdmin();
-        renderEvents();
-        showToast("Team wurde gelöscht.");
-      }
-
-      function updateSeriesFields() {
-        const isSeries = $("#newEventMode").value === "series";
-
-        $$(".series-field").forEach(field => {
-          field.style.display = isSeries ? "grid" : "none";
-        });
-
-        $("#newEventEndDate").required = isSeries;
-      }
-
-      function parseCsv(text) {
-        const firstLine = text.split(/\r?\n/).find(line => line.trim()) || "";
-        const separator = firstLine.split(";").length > firstLine.split(",").length ? ";" : ",";
-
-        const rows = [];
-        let row = [];
-        let value = "";
-        let insideQuotes = false;
-
-        for (let index = 0; index < text.length; index += 1) {
-          const character = text[index];
-          const nextCharacter = text[index + 1];
-
-          if (character === '"' && insideQuotes && nextCharacter === '"') {
-            value += '"';
-            index += 1;
-            continue;
-          }
-
-          if (character === '"') {
-            insideQuotes = !insideQuotes;
-            continue;
-          }
-
-          if (!insideQuotes && character === separator) {
-            row.push(value.trim());
-            value = "";
-            continue;
-          }
-
-          if (!insideQuotes && (character === "\n" || character === "\r")) {
-            if (character === "\r" && nextCharacter === "\n") {
-              index += 1;
-            }
-
-            row.push(value.trim());
-
-            if (row.some(cell => cell !== "")) {
-              rows.push(row);
-            }
-
-            row = [];
-            value = "";
-            continue;
-          }
-
-          value += character;
-        }
-
-        row.push(value.trim());
-
-        if (row.some(cell => cell !== "")) {
-          rows.push(row);
-        }
-
-        return rows;
-      }
-
-      function findTeamByValue(value, fallbackTeamId) {
-        const normalizedValue = normalizeText(value);
-
-        if (!normalizedValue) {
-          return state.data.teams.find(team => team.id === fallbackTeamId) || null;
-        }
-
-        return state.data.teams.find(team => {
-          return normalizeText(team.id) === normalizedValue ||
-            normalizeText(team.name) === normalizedValue;
-        }) || null;
-      }
-
-      function importPlayersFromCsv(file, fallbackTeamId) {
-        const reader = new FileReader();
-
-        reader.addEventListener("load", () => {
-          const rows = parseCsv(String(reader.result || ""));
-
-          if (!rows.length) {
-            showToast("Die CSV Datei enthält keine Daten.");
-            return;
-          }
-
-          const firstRow = rows[0].map(normalizeText);
-
-          const nameColumn = firstRow.findIndex(value => {
-            return ["name", "spieler", "spielername", "nachname vorname"].includes(value);
-          });
-
-          const teamColumn = firstRow.findIndex(value => {
-            return ["team", "mannschaft"].includes(value);
-          });
-
-          const hasHeader = nameColumn >= 0 || teamColumn >= 0;
-          const startIndex = hasHeader ? 1 : 0;
-          const resolvedNameColumn = nameColumn >= 0 ? nameColumn : 0;
-          const resolvedTeamColumn = teamColumn >= 0 ? teamColumn : -1;
-
-          let imported = 0;
-          let skipped = 0;
-
-          for (let index = startIndex; index < rows.length; index += 1) {
-            const row = rows[index];
-            const name = String(row[resolvedNameColumn] || "").trim();
-
-            const teamValue = resolvedTeamColumn >= 0
-              ? String(row[resolvedTeamColumn] || "").trim()
-              : "";
-
-            if (!name) {
-              skipped += 1;
-              continue;
-            }
-
-            const team = findTeamByValue(teamValue, fallbackTeamId);
-
-            if (!team) {
-              skipped += 1;
-              continue;
-            }
-
-            const alreadyExists = state.data.players.some(player => {
-              return player.teamId === team.id &&
-                normalizeText(player.name) === normalizeText(name);
-            });
-
-            if (alreadyExists) {
-              skipped += 1;
-              continue;
-            }
-
-            state.data.players.push({
-              id: createId("player"),
-              teamId: team.id,
-              name
-            });
-
-            imported += 1;
-          }
-
-          if (!imported) {
-            showToast("Keine Spieler importiert. Namen und Teams bitte prüfen.");
-            return;
-          }
-
-          saveData();
-          $("#playerCsvFile").value = "";
-          renderAdmin();
-
-          showToast(
-            skipped
-              ? `${imported} Spieler importiert. ${skipped} Einträge übersprungen.`
-              : `${imported} Spieler wurden importiert.`
-          );
-        });
-
-        reader.addEventListener("error", () => {
-          showToast("Die CSV Datei konnte nicht gelesen werden.");
-        });
-
-        reader.readAsText(file, "UTF-8");
-      }
-
-      function exportCsv() {
-        const lines = ["Spieler,Team,Termin,Datum,Art,Status"];
-
-        state.data.events.forEach(event => {
-          Object.entries(state.data.attendance[event.id] || {}).forEach(([playerId, status]) => {
-            const player = state.data.players.find(item => item.id === playerId);
-
-            if (!player) {
+        }).join("") : `<div class="empty">Keine Termine vorhanden.</div>`;
+
+        $$(".delete-event", listEl).forEach(btn => {
+          btn.addEventListener("click", () => {
+            const eventId = btn.dataset.id;
+            const hasEntries = hasAttendanceEntriesForEvent(eventId);
+            if (isTrainer && hasEntries) {
+              showToast("Trainer können Termine mit Einträgen nicht löschen.");
               return;
             }
 
-            const values = [
-              player.name,
-              teamName(event.teamId),
-              event.title,
-              event.date,
-              event.type === "training" ? "Training" : "Spiel",
-              getStatus(status)?.label || ""
-            ];
-
-            lines.push(
-              values.map(value => `"${String(value).replaceAll('"', '""')}"`).join(",")
-            );
+            if (!confirm("Termin wirklich löschen?")) return;
+            state.data.events = state.data.events.filter(e => e.id !== eventId);
+            delete state.data.attendance[eventId];
+            saveData();
+            renderManageEvents(type, allowedTeams);
+            renderEvents(type, allowedTeams);
+            showToast("Termin gelöscht.");
           });
         });
+      }
 
-        const blob = new Blob([lines.join("\n")], {
-          type: "text/csv;charset=utf-8;"
+      function renderAdminTeams(type) {
+        const listEl = $("#teamAdminList");
+        if (!listEl) return;
+
+        listEl.innerHTML = state.data.teams.filter(t => t.type === type).map(team => `
+          <div class="admin-item">
+            <div>
+              <div class="event-name">${escapeHtml(team.name)}</div>
+              <div class="admin-item-meta">Trainer: ${escapeHtml(team.trainer)}</div>
+            </div>
+            <button class="small-button delete-team" data-id="${team.id}">Löschen</button>
+          </div>
+        `).join("");
+
+        $$(".delete-team").forEach(btn => {
+          btn.addEventListener("click", () => {
+            if (!confirm("Team inklusive aller Termine und Spieler löschen?")) return;
+            state.data.teams = state.data.teams.filter(t => t.id !== btn.dataset.id);
+            state.data.players = state.data.players.filter(p => p.teamId !== btn.dataset.id);
+            state.data.events = state.data.events.filter(e => e.teamId !== btn.dataset.id);
+            saveData();
+            renderApp();
+            showToast("Team gelöscht.");
+          });
         });
+      }
 
+      function renderAdminPlayers(type, allowedTeams) {
+        const isTrainer = Boolean(getTrainerTeam());
+        const listEl = $("#playerAdminList");
+        if (!listEl) return;
+
+        const visiblePlayers = state.data.players
+          .filter(p => p.type === type && allowedTeams.includes(p.teamId) && (!state.activeTeamId || p.teamId === state.activeTeamId))
+          .sort((a, b) => a.name.localeCompare(b.name, "de-CH"));
+
+        listEl.innerHTML = visiblePlayers.length ? visiblePlayers.map(player => {
+          const hasEntries = hasAttendanceEntriesForPlayer(player.id);
+          const disabled = isTrainer && hasEntries;
+
+          return `
+            <div class="admin-item">
+              <div>
+                <div class="event-name">${escapeHtml(player.name)}</div>
+                <div class="admin-item-meta">${teamName(player.teamId)} · ${hasEntries ? "Hat AWK-Einträge" : "Keine Einträge"}</div>
+              </div>
+              <button class="small-button delete-player" data-id="${player.id}" ${disabled ? "disabled title='Trainer können Spieler mit Einträgen nicht löschen'" : ""}>
+                ${disabled ? "Gesperrt" : "Löschen"}
+              </button>
+            </div>
+          `;
+        }).join("") : `<div class="empty">Keine Spieler vorhanden.</div>`;
+
+        $$(".delete-player", listEl).forEach(btn => {
+          btn.addEventListener("click", () => {
+            const playerId = btn.dataset.id;
+            const hasEntries = hasAttendanceEntriesForPlayer(playerId);
+            if (isTrainer && hasEntries) {
+              showToast("Trainer können Spieler mit Einträgen nicht löschen.");
+              return;
+            }
+
+            if (!confirm("Spieler wirklich löschen?")) return;
+            state.data.players = state.data.players.filter(p => p.id !== playerId);
+            Object.values(state.data.attendance).forEach(att => delete att[playerId]);
+            saveData();
+            renderAdminPlayers(type, allowedTeams);
+            showToast("Spieler gelöscht.");
+          });
+        });
+      }
+
+      function exportCsv(type, allowedTeams) {
+        const typeLabels = { training: "Training", match: "Spiel", tournament: "Turnier" };
+        const lines = ["Spieler,Team,Termin,Datum,Art,Status"];
+        state.data.events
+          .filter(e => allowedTeams.includes(e.teamId) && (!state.activeTeamId || e.teamId === state.activeTeamId))
+          .forEach(event => {
+            Object.entries(state.data.attendance[event.id] || {}).forEach(([playerId, status]) => {
+              const player = state.data.players.find(p => p.id === playerId);
+              if (!player) return;
+              lines.push([
+                player.name,
+                teamName(event.teamId),
+                event.title,
+                event.date,
+                typeLabels[event.type] || "Termin",
+                getStatus(status)?.label || ""
+              ].map(v => `"${String(v).replaceAll('"', '""')}"`).join(","));
+            });
+          });
+
+        const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
-
         link.href = url;
-        link.download = "awk-anwesenheit.csv";
+        link.download = `awk-auswertung-${type}.csv`;
         link.click();
-
         URL.revokeObjectURL(url);
       }
 
-      let toastTimer;
-
-      function showToast(message) {
-        $("#toast").textContent = message;
-        $("#toast").classList.add("show");
-
-        clearTimeout(toastTimer);
-
-        toastTimer = setTimeout(() => {
-          $("#toast").classList.remove("show");
-        }, 2400);
+      function parseCsv(text) {
+        return text.split(/\r?\n/).filter(Boolean).map(line => line.split(",").map(c => c.replace(/^"|"$/g, "").trim()));
       }
 
-      function saveCurrentAttendance() {
-        saveData();
-        renderEvents();
-        showToast("Anwesenheit wurde gespeichert.");
-      }
+      /* EINSATZ / SCHIRI / FSA MODULE */
 
-      $("#roleSelect").addEventListener("change", setRole);
+      function renderAssignmentsModule(moduleId, config) {
+        $("#teamSelect").classList.add("hidden");
+        const category = config.category;
+        const categoryOverviewLink = `${location.origin}${location.pathname}#einsaetze=${encodeURIComponent(category)}`;
+        const isDSchiri = moduleId === "d-schiris";
+        const isFSA = moduleId === "fsa-helfer";
 
-      $("#trainerTeamSelect").addEventListener("change", event => {
-        state.trainerTeamId = event.target.value;
-        localStorage.setItem(TRAINER_TEAM_KEY, state.trainerTeamId);
+        $("#moduleContent").innerHTML = `
+          <nav class="tabs">
+            <button class="tab active" data-tab="assignments-list">${isDSchiri ? "Spiele" : isFSA ? "Trainings" : "Einsätze"}</button>
+            ${isAnyAdmin() ? `<button class="tab" data-tab="assignments-manage">${isDSchiri ? "Spiel erfassen" : isFSA ? "Training erfassen" : "Einsatz erfassen"}</button>` : ""}
+            ${isAnyAdmin() && isDSchiri ? `<button class="tab" data-tab="contacts-manage">Trainer</button>` : ""}
+          </nav>
 
-        if (state.role !== "trainer") {
-          return;
-        }
+          <section class="panel active" id="assignments-list">
+            <div class="section-head">
+              <div>
+                <h2>${config.title}</h2>
+                <p>${isDSchiri ? "Übersicht aller Spiele für Schiedsrichter." : isFSA ? "Übersicht aller Trainings für Hauptleitung und Helfer." : "Übersicht aller Einsätze."}</p>
+              </div>
+            </div>
 
-        refreshTeamSelects();
-        renderEvents();
+            <div class="overview-share-card">
+              <div>
+                <h4>Gesamtübersichts-Link für alle ${escapeHtml(config.title)}</h4>
+                <div class="assignment-meta">Diesen Link kannst du an Helfer, Eltern oder Schiedsrichter versenden. Sie sehen alle offenen kommenden Termine auf einen Blick.</div>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <button class="button button-primary" id="copyCatLinkBtn">Link für alle ${isFSA ? "Trainings" : isDSchiri ? "Spiele" : "Termine"} kopieren</button>
+                <button class="button button-secondary" id="copyCatWaBtn">WhatsApp: Alle ${isFSA ? "Trainings" : isDSchiri ? "Spiele" : "Termine"}</button>
+              </div>
+            </div>
 
-        if ($("#dashboard").classList.contains("active")) {
-          renderDashboard();
-        }
+            <div class="assignment-list" id="assignmentList"></div>
+          </section>
 
-        if ($("#clean-dashboard").classList.contains("active")) {
-          renderCleanDashboard();
-        }
+          ${isAnyAdmin() ? `
+            <section class="panel" id="assignments-manage">
+              <div class="section-head">
+                <div>
+                  <h2>${isDSchiri ? "Neues Spiel erfassen" : isFSA ? "Neues FSA Training erfassen" : "Neuen Einsatz erfassen"}</h2>
+                  <p>${isDSchiri ? "Erfasse ein Spiel zur Spielleitung durch Schiedsrichter." : isFSA ? "Erfasse ein Training mit 1 Hauptleitung und frei wählbarer Anzahl Helfer." : `Erstelle einen Helfer-Einsatz für ${config.title}.`}</p>
+                </div>
+              </div>
 
-        if ($("#manage").classList.contains("active")) {
-          renderManage();
-        }
+              <div class="card">
+                <form id="assignmentForm">
+                  ${isDSchiri ? `
+                    <div class="form-grid">
+                      <label>
+                        Team
+                        <select id="schiriTeamSelect" required>
+                          <option value="D9 weiss">D9 weiss</option>
+                          <option value="D9 blau">D9 blau</option>
+                          <option value="D7 weiss">D7 weiss</option>
+                          <option value="D7 blau">D7 blau</option>
+                        </select>
+                      </label>
 
-        if ($("#admin").classList.contains("active")) {
-          renderAdmin();
-        }
+                      <label>
+                        Gegner
+                        <input id="schiriOpponent" required placeholder="z.B. FC Uster">
+                      </label>
 
-        if ($("#attendance").classList.contains("active")) {
-          showPanel("events");
-        }
-      });
+                      <label>
+                        Datum
+                        <input id="schiriDate" type="date" required>
+                      </label>
 
-      $("#teamFilter").addEventListener("change", renderEvents);
-      $("#periodFilter").addEventListener("change", renderEvents);
-      $("#typeFilter").addEventListener("change", renderEvents);
+                      <label>
+                        Anpfiff
+                        <input id="schiriTime" type="time" required>
+                      </label>
 
-      $("#dashboardTeamFilter").addEventListener("change", renderDashboard);
-      $("#dashboardPeriodFilter").addEventListener("change", renderDashboard);
-      $("#dashboardTypeFilter").addEventListener("change", renderDashboard);
+                      <label style="grid-column: span 2;">
+                        Trainer
+                        <select id="schiriContactSelect" required>
+                          ${state.data.contacts.length ? state.data.contacts.map(c => `
+                            <option value="${c.id}">${escapeHtml(c.name)}</option>
+                          `).join("") : `<option value="">Bitte zuerst im Tab Trainer erfassen</option>`}
+                        </select>
+                      </label>
+                    </div>
 
-      $("#cleanDashboardTeamFilter").addEventListener("change", renderCleanDashboard);
-      $("#cleanDashboardPeriodFilter").addEventListener("change", renderCleanDashboard);
-      $("#cleanDashboardTypeFilter").addEventListener("change", renderCleanDashboard);
+                    <button class="button button-primary" type="submit" style="margin-top:14px" ${!state.data.contacts.length ? "disabled" : ""}>Spiel veröffentlichen</button>
+                  ` : isFSA ? `
+                    <div class="form-grid">
+                      <label>
+                        Terminart
+                        <select id="fsaAssignmentMode" required>
+                          <option value="single">Einzeltermin</option>
+                          <option value="series">Wöchentliche Serie</option>
+                        </select>
+                      </label>
 
-      $("#backToEvents").addEventListener("click", () => {
-        showPanel("events");
-      });
+                      <label>
+                        Startdatum
+                        <input id="fsaAssignmentDate" type="date" required>
+                      </label>
 
-      $("#markAllPresent").addEventListener("click", () => {
-        const event = state.data.events.find(item => item.id === state.activeEventId);
+                      <label>
+                        Helfer (benötigte Personen)
+                        <select id="fsaHelferNeeded" required>
+                          <option value="1">1 Helfer</option>
+                          <option value="2">2 Helfer</option>
+                          <option value="3" selected>3 Helfer</option>
+                          <option value="4">4 Helfer</option>
+                          <option value="5">5 Helfer</option>
+                          <option value="6">6 Helfer</option>
+                        </select>
+                      </label>
 
-        if (!event) {
-          return;
-        }
+                      <label class="fsa-series-field hidden">
+                        Wiederholung
+                        <select id="fsaAssignmentInterval">
+                          <option value="1">Jede Woche</option>
+                          <option value="2">Alle 2 Wochen</option>
+                        </select>
+                      </label>
 
-        state.data.attendance[event.id] ||= {};
+                      <label class="fsa-series-field hidden">
+                        Serienende
+                        <input id="fsaAssignmentEndDate" type="date">
+                      </label>
+                    </div>
 
-        state.data.players
-          .filter(player => player.teamId === event.teamId)
-          .forEach(player => {
-            state.data.attendance[event.id][player.id] = "present";
+                    <div class="notice" style="margin-top:12px;margin-bottom:14px">
+                      <strong>Rollenstruktur:</strong> 1x Hauptleitung (automatisch) + gewählte Anzahl Helfer.
+                    </div>
+
+                    <button class="button button-primary" type="submit">Training veröffentlichen</button>
+                  ` : `
+                    <div class="form-grid">
+                      <label>
+                        Titel
+                        <input id="genAssignmentTitle" required placeholder="z.B. Festwirtschaft">
+                      </label>
+
+                      <label>
+                        Terminart
+                        <select id="genAssignmentMode" required>
+                          <option value="single">Einzeltermin</option>
+                          <option value="series">Wöchentliche Serie</option>
+                        </select>
+                      </label>
+
+                      <label>
+                        Startdatum
+                        <input id="genAssignmentDate" type="date" required>
+                      </label>
+
+                      <label>
+                        Benötigte Personen
+                        <input id="genAssignmentNeeded" type="number" min="1" value="1" required>
+                      </label>
+
+                      <label class="gen-series-field hidden">
+                        Wiederholung
+                        <select id="genAssignmentInterval">
+                          <option value="1">Jede Woche</option>
+                          <option value="2">Alle 2 Wochen</option>
+                        </select>
+                      </label>
+
+                      <label class="gen-series-field hidden">
+                        Serienende
+                        <input id="genAssignmentEndDate" type="date">
+                      </label>
+                    </div>
+
+                    <button class="button button-primary" type="submit" style="margin-top:14px">Einsatz veröffentlichen</button>
+                  `}
+                </form>
+              </div>
+            </section>
+
+            ${isDSchiri ? `
+              <section class="panel" id="contacts-manage">
+                <div class="section-head">
+                  <div>
+                    <h2>Trainer erfassen</h2>
+                    <p>Verwalte Trainer für Schiedsrichter.</p>
+                  </div>
+                </div>
+
+                <div class="card">
+                  <form id="contactForm">
+                    <div class="form-grid">
+                      <label style="grid-column: span 2;">
+                        Trainer (Nachname Vorname)
+                        <input id="contactNameInput" required placeholder="Muster Max">
+                      </label>
+                    </div>
+                    <button class="button button-primary" type="submit" style="margin-top:10px">Trainer speichern</button>
+                  </form>
+
+                  <div class="admin-list" id="contactAdminList" style="margin-top:18px"></div>
+                </div>
+              </section>
+            ` : ""}
+          ` : ""}
+        `;
+
+        $("#copyCatLinkBtn")?.addEventListener("click", () => {
+          navigator.clipboard.writeText(categoryOverviewLink);
+          showToast("Link für alle Termine kopiert.");
+        });
+
+        $("#copyCatWaBtn")?.addEventListener("click", () => {
+          const text = `Hallo zusammen! Hier ist die Übersicht aller offenen ${config.title}-Termine. Bitte wählt euren Einsatz aus und tragt euch direkt ein: ${categoryOverviewLink}`;
+          navigator.clipboard.writeText(text);
+          showToast("WhatsApp Text kopiert.");
+        });
+
+        $$(".tab").forEach(tab => {
+          tab.addEventListener("click", () => {
+            $$(".panel").forEach(p => p.classList.toggle("active", p.id === tab.dataset.tab));
+            $$(".tab").forEach(t => t.classList.toggle("active", t === tab));
+            if (tab.dataset.tab === "assignments-list") renderAssignmentList(category);
+            if (tab.dataset.tab === "contacts-manage") renderContactsList();
           });
-
-        renderPlayers();
-      });
-
-      $("#saveAttendance").addEventListener("click", saveCurrentAttendance);
-      $("#saveAttendanceBottom").addEventListener("click", saveCurrentAttendance);
-
-      $("#newEventMode").addEventListener("change", updateSeriesFields);
-      $("#exportCsv").addEventListener("click", exportCsv);
-
-      $("#teamForm").addEventListener("submit", event => {
-        event.preventDefault();
-
-        if (state.role !== "juko") {
-          showToast("Nur die JuKo kann Teams hinzufügen.");
-          return;
-        }
-
-        const name = $("#newTeamName").value.trim();
-        const trainer = $("#newTeamTrainer").value.trim();
-
-        if (!name || !trainer) {
-          return;
-        }
-
-        const exists = state.data.teams.some(team => {
-          return normalizeText(team.name) === normalizeText(name);
         });
 
-        if (exists) {
-          showToast("Dieses Team existiert bereits.");
-          return;
-        }
-
-        const team = {
-          id: createId("team"),
-          name,
-          trainer
-        };
-
-        state.data.teams.push(team);
-
-        if (!state.trainerTeamId) {
-          state.trainerTeamId = team.id;
-          localStorage.setItem(TRAINER_TEAM_KEY, team.id);
-        }
-
-        saveData();
-        event.target.reset();
-        refreshTeamSelects();
-        renderAdmin();
-        renderEvents();
-        showToast("Team wurde hinzugefügt.");
-      });
-
-      $("#playerForm").addEventListener("submit", event => {
-        event.preventDefault();
-
-        const name = $("#newPlayerName").value.trim();
-        const teamId = $("#newPlayerTeam").value;
-
-        if (!name || !teamId) {
-          return;
-        }
-
-        if (!allowedTeamIds().includes(teamId)) {
-          showToast("Du hast keine Berechtigung für dieses Team.");
-          return;
-        }
-
-        const exists = state.data.players.some(player => {
-          return player.teamId === teamId &&
-            normalizeText(player.name) === normalizeText(name);
+        const fsaModeSelect = $("#fsaAssignmentMode");
+        fsaModeSelect?.addEventListener("change", () => {
+          const isSeries = fsaModeSelect.value === "series";
+          $$(".fsa-series-field").forEach(f => f.classList.toggle("hidden", !isSeries));
+          $("#fsaAssignmentEndDate").required = isSeries;
         });
 
-        if (exists) {
-          showToast("Dieser Spieler ist bereits in diesem Team vorhanden.");
-          return;
-        }
-
-        state.data.players.push({
-          id: createId("player"),
-          teamId,
-          name
+        const genModeSelect = $("#genAssignmentMode");
+        genModeSelect?.addEventListener("change", () => {
+          const isSeries = genModeSelect.value === "series";
+          $$(".gen-series-field").forEach(f => f.classList.toggle("hidden", !isSeries));
+          $("#genAssignmentEndDate").required = isSeries;
         });
 
-        saveData();
-        $("#newPlayerName").value = "";
-        renderAdmin();
-        showToast("Spieler wurde hinzugefügt.");
-      });
+        $("#assignmentForm")?.addEventListener("submit", event => {
+          event.preventDefault();
 
-      $("#playerImportForm").addEventListener("submit", event => {
-        event.preventDefault();
+          if (isDSchiri) {
+            const team = $("#schiriTeamSelect").value;
+            const opponent = $("#schiriOpponent").value.trim();
+            const date = $("#schiriDate").value;
+            const time = $("#schiriTime").value;
+            const contactId = $("#schiriContactSelect").value;
+            const contactObj = state.data.contacts.find(c => c.id === contactId);
 
-        if (state.role !== "juko") {
-          showToast("Nur die JuKo kann Spieler importieren.");
-          return;
-        }
+            if (!contactObj) {
+              showToast("Bitte wähle einen gültigen Trainer aus.");
+              return;
+            }
 
-        const file = $("#playerCsvFile").files[0];
-        const fallbackTeamId = $("#importPlayerTeam").value;
+            state.data.assignments.push({
+              id: createId("assignment"),
+              title: `${team} vs. ${opponent}`,
+              category,
+              date,
+              time,
+              neededCount: 1,
+              contactName: contactObj.name,
+              status: "open",
+              linkToken: createId("lnk")
+            });
 
-        if (!file) {
-          showToast("Bitte zuerst eine CSV Datei auswählen.");
-          return;
-        }
+            saveData();
+            if (broadcast) broadcast.postMessage("update");
+            event.target.reset();
+            $(`.tab[data-tab="assignments-list"]`)?.click();
+            showToast("Spiel erfolgreich erfasst.");
+          } else if (isFSA) {
+            const mode = $("#fsaAssignmentMode").value;
+            const startDate = $("#fsaAssignmentDate").value;
+            const endDate = $("#fsaAssignmentEndDate")?.value;
+            const interval = Number($("#fsaAssignmentInterval")?.value || 1);
+            const neededHelfer = Number($("#fsaHelferNeeded").value || 3);
 
-        if (!fallbackTeamId) {
-          showToast("Bitte ein Standard Team auswählen.");
-          return;
-        }
+            const dates = [];
+            if (mode === "single") {
+              dates.push(startDate);
+            } else {
+              const date = new Date(`${startDate}T12:00:00`);
+              const finalDate = new Date(`${endDate}T12:00:00`);
+              while (date <= finalDate && dates.length < 100) {
+                dates.push(date.toISOString().slice(0, 10));
+                date.setDate(date.getDate() + interval * 7);
+              }
+            }
 
-        importPlayersFromCsv(file, fallbackTeamId);
-      });
+            dates.forEach(d => {
+              state.data.assignments.push({
+                id: createId("assignment"),
+                title: "FSA Training",
+                category,
+                date: d,
+                neededHauptleitung: 1,
+                neededHelfer,
+                status: "open",
+                linkToken: createId("lnk")
+              });
+            });
 
-      $("#eventForm").addEventListener("submit", event => {
-        event.preventDefault();
+            saveData();
+            if (broadcast) broadcast.postMessage("update");
+            event.target.reset();
+            $$(".fsa-series-field").forEach(f => f.classList.add("hidden"));
+            $(`.tab[data-tab="assignments-list"]`)?.click();
+            showToast(dates.length === 1 ? "FSA Training erstellt." : `${dates.length} FSA Trainings erstellt.`);
+          } else {
+            const title = $("#genAssignmentTitle").value.trim();
+            const mode = $("#genAssignmentMode").value;
+            const startDate = $("#genAssignmentDate").value;
+            const endDate = $("#genAssignmentEndDate")?.value;
+            const interval = Number($("#genAssignmentInterval")?.value || 1);
+            const neededCount = Number($("#genAssignmentNeeded").value || 1);
 
-        const teamId = $("#newEventTeam").value;
-        const type = $("#newEventType").value;
-        const mode = $("#newEventMode").value;
-        const title = $("#newEventTitle").value.trim();
-        const location = $("#newEventLocation").value.trim();
-        const startDate = $("#newEventStartDate").value;
-        const time = $("#newEventTime").value;
-        const endDate = $("#newEventEndDate").value;
-        const interval = Number($("#newEventInterval").value);
+            const dates = [];
+            if (mode === "single") {
+              dates.push(startDate);
+            } else {
+              const date = new Date(`${startDate}T12:00:00`);
+              const finalDate = new Date(`${endDate}T12:00:00`);
+              while (date <= finalDate && dates.length < 100) {
+                dates.push(date.toISOString().slice(0, 10));
+                date.setDate(date.getDate() + interval * 7);
+              }
+            }
 
-        if (!allowedTeamIds().includes(teamId)) {
-          showToast("Du hast keine Berechtigung für dieses Team.");
-          return;
-        }
+            dates.forEach(d => {
+              state.data.assignments.push({
+                id: createId("assignment"),
+                title,
+                category,
+                date: d,
+                neededCount,
+                status: "open",
+                linkToken: createId("lnk")
+              });
+            });
 
-        if (!title || !location || !startDate || !time) {
-          return;
-        }
-
-        if (mode === "series" && (!endDate || endDate < startDate)) {
-          showToast("Bitte ein gültiges Serienende auswählen.");
-          return;
-        }
-
-        const dates = [];
-
-        if (mode === "single") {
-          dates.push(startDate);
-        } else {
-          const date = new Date(`${startDate}T12:00:00`);
-          const finalDate = new Date(`${endDate}T12:00:00`);
-
-          while (date <= finalDate && dates.length < 100) {
-            dates.push(date.toISOString().slice(0, 10));
-            date.setDate(date.getDate() + interval * 7);
+            saveData();
+            if (broadcast) broadcast.postMessage("update");
+            event.target.reset();
+            $$(".gen-series-field").forEach(f => f.classList.add("hidden"));
+            $("#genAssignmentNeeded").value = "1";
+            $(`.tab[data-tab="assignments-list"]`)?.click();
+            showToast(dates.length === 1 ? "Einsatz erstellt." : `${dates.length} Einsätze erstellt.`);
           }
-        }
+        });
 
-        dates.forEach(date => {
-          state.data.events.push({
-            id: createId("event"),
-            teamId,
-            type,
-            title,
-            location,
-            date,
-            time
+        $("#contactForm")?.addEventListener("submit", event => {
+          event.preventDefault();
+          const name = $("#contactNameInput").value.trim();
+          if (!name) return;
+
+          state.data.contacts.push({
+            id: createId("contact"),
+            name
+          });
+
+          saveData();
+          event.target.reset();
+          renderContactsList();
+          renderAssignmentsModule(moduleId, config);
+          $(`.tab[data-tab="contacts-manage"]`)?.click();
+          showToast("Trainer hinzugefügt.");
+        });
+
+        renderAssignmentList(category);
+        if (isDSchiri) renderContactsList();
+      }
+
+      function renderContactsList() {
+        const listEl = $("#contactAdminList");
+        if (!listEl) return;
+
+        listEl.innerHTML = state.data.contacts.length ? state.data.contacts.map(c => `
+          <div class="admin-item">
+            <div>
+              <div class="event-name">${escapeHtml(c.name)}</div>
+            </div>
+            <button class="small-button delete-contact-btn" data-id="${c.id}">Löschen</button>
+          </div>
+        `).join("") : `<div class="empty">Noch keine Trainer erfasst.</div>`;
+
+        $$(".delete-contact-btn", listEl).forEach(btn => {
+          btn.addEventListener("click", () => {
+            state.data.contacts = state.data.contacts.filter(c => c.id !== btn.dataset.id);
+            saveData();
+            renderContactsList();
+            showToast("Trainer gelöscht.");
+          });
+        });
+      }
+
+      function renderAssignmentList(category) {
+        const isFSA = category === "FSA Helfer";
+        const assignments = state.data.assignments
+          .filter(a => a.category === category)
+          .sort((a, b) => a.date.localeCompare(b.date));
+
+        const listEl = $("#assignmentList");
+        if (!listEl) return;
+
+        listEl.innerHTML = assignments.length ? assignments.map(a => {
+          const isPast = a.date < currentDate();
+          const signups = state.data.assignmentSignups.filter(s => s.assignmentId === a.id && !s.cancelledAt);
+
+          let isFilled = false;
+          let statusText = "Offen";
+          let statusClass = "open";
+
+          if (isFSA) {
+            const hlSignups = signups.filter(s => s.role === "hauptleitung");
+            const helferSignups = signups.filter(s => s.role !== "hauptleitung");
+            const neededHL = a.neededHauptleitung ?? 1;
+            const neededH = a.neededHelfer ?? 3;
+
+            const hlFull = hlSignups.length >= neededHL;
+            const hFull = helferSignups.length >= neededH;
+            isFilled = hlFull && hFull;
+
+            if (isFilled) {
+              statusText = "Besetzt";
+              statusClass = "filled";
+            } else if (signups.length > 0) {
+              statusText = "Teilbesetzt";
+              statusClass = "partial";
+            }
+          } else {
+            const needed = a.neededCount || 1;
+            isFilled = signups.length >= needed;
+            if (isFilled) {
+              statusText = "Besetzt";
+              statusClass = "filled";
+            } else if (signups.length > 0) {
+              statusText = "Teilbesetzt";
+              statusClass = "partial";
+            }
+          }
+
+          const singleLink = `${location.origin}${location.pathname}#einsatz=${a.linkToken}`;
+
+          return `
+            <div class="assignment-card ${isPast ? "is-past" : ""}">
+              <div class="assignment-head">
+                <div>
+                  <h4 class="assignment-title">
+                    ${escapeHtml(a.title)}
+                    ${isPast ? `<span class="badge" style="background:#e2e8f0;color:#64748b;font-size:11px;margin-left:6px;vertical-align:middle;">Vergangen</span>` : ""}
+                  </h4>
+                  <div class="assignment-meta">
+                    📅 <strong>${formatDate(a.date)}</strong>
+                    ${a.time ? ` · Anpfiff: ${a.time} Uhr` : ""}
+                    ${a.contactName ? `<br>Trainer: ${escapeHtml(a.contactName)}` : ""}
+                  </div>
+                </div>
+
+                <span class="assignment-status ${statusClass}">
+                  <i class="status-dot"></i>
+                  ${statusText}
+                </span>
+              </div>
+
+              ${isFSA ? `
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
+                  <span class="slot-count">
+                    Hauptleitung: ${signups.filter(s => s.role === "hauptleitung").length} von ${a.neededHauptleitung ?? 1}
+                  </span>
+                  <span class="slot-count">
+                    Helfer: ${signups.filter(s => s.role !== "hauptleitung").length} von ${a.neededHelfer ?? 3}
+                  </span>
+                </div>
+              ` : `
+                <div class="slot-count">${signups.length} von ${a.neededCount || 1} Personen eingetragen</div>
+              `}
+
+              ${signups.length ? `
+                <div class="assignment-signups">
+                  <strong>Eingetragene Personen (Admin Ansicht):</strong>
+                  <ul>
+                    ${signups.map(s => `
+                      <li>
+                        <span>
+                          ${isFSA ? `<span class="role-badge ${s.role === "hauptleitung" ? "hl" : ""}">${s.role === "hauptleitung" ? "Hauptleitung" : "Helfer"}</span>` : ""}
+                          <strong>${escapeHtml(s.firstName)} ${escapeHtml(s.lastName)}</strong>
+                          ${s.phone ? `· Tel: ${escapeHtml(s.phone)}` : ""}
+                        </span>
+                        ${isAnyAdmin() ? `<button class="small-button remove-signup-btn" data-signup-id="${s.id}" style="padding:3px 7px;font-size:11px">Entfernen</button>` : ""}
+                      </li>
+                    `).join("")}
+                  </ul>
+                </div>
+              ` : ""}
+
+              ${isAnyAdmin() ? `
+                <div class="assignment-actions">
+                  ${!isFilled ? `<button class="button button-primary admin-add-schiri-btn" data-id="${a.id}">Manuell eintragen</button>` : ""}
+                  <button class="button button-secondary copy-link-btn" data-link="${singleLink}">Link kopieren</button>
+                  <button class="button button-secondary copy-wa-btn" data-title="${escapeHtml(a.title)}" data-date="${formatDate(a.date)}" data-time="${a.time || ''}" data-link="${singleLink}">WhatsApp</button>
+                  <button class="small-button delete-assign-btn" data-id="${a.id}">Löschen</button>
+                </div>
+
+                <div id="adminManualWrap_${a.id}" class="admin-manual-form hidden">
+                  <h4 style="margin:0 0 8px 0;font-size:14px">Person manuell eintragen</h4>
+                  <form class="admin-direct-signup-form" data-assignment-id="${a.id}">
+                    ${isFSA ? `
+                      <label style="margin-bottom:8px">
+                        Rolle
+                        <select name="role" required>
+                          <option value="helfer">Helfer</option>
+                          <option value="hauptleitung">Hauptleitung</option>
+                        </select>
+                      </label>
+                    ` : ""}
+                    <div class="form-grid">
+                      <label>Vorname <input name="firstName" required placeholder="Max"></label>
+                      <label>Name <input name="lastName" required placeholder="Muster"></label>
+                      <label>Telefonnummer <input name="phone" type="tel" required placeholder="079 123 45 67"></label>
+                    </div>
+                    <div style="margin-top:10px;display:flex;gap:8px">
+                      <button class="button button-primary" type="submit">Eintragen</button>
+                      <button type="button" class="button button-secondary cancel-manual-btn" data-id="${a.id}">Abbrechen</button>
+                    </div>
+                  </form>
+                </div>
+              ` : ""}
+            </div>
+          `;
+        }).join("") : `<div class="card empty">Noch keine Termine oder Einsätze erfasst.</div>`;
+
+        $$(".admin-add-schiri-btn", listEl).forEach(btn => {
+          btn.addEventListener("click", () => {
+            const formWrap = $(`#adminManualWrap_${btn.dataset.id}`);
+            formWrap.classList.toggle("hidden");
           });
         });
 
-        saveData();
-        event.target.reset();
-        $("#newEventMode").value = "single";
-        updateSeriesFields();
-        renderManage();
-        renderEvents();
-
-        showToast(
-          dates.length === 1
-            ? "Termin wurde hinzugefügt."
-            : `${dates.length} Termine wurden als Serie erstellt.`
-        );
-      });
-
-      $$(".tab").forEach(tab => {
-        tab.addEventListener("click", () => {
-          showPanel(tab.dataset.tab);
+        $$(".cancel-manual-btn", listEl).forEach(btn => {
+          btn.addEventListener("click", () => {
+            const formWrap = $(`#adminManualWrap_${btn.dataset.id}`);
+            formWrap.classList.add("hidden");
+          });
         });
-      });
 
-      refreshTeamSelects();
-      updateSeriesFields();
-      setRole();
+        $$(".admin-direct-signup-form", listEl).forEach(form => {
+          form.addEventListener("submit", event => {
+            event.preventDefault();
+            const assignmentId = form.dataset.assignmentId;
+            const fd = new FormData(form);
+
+            state.data.assignmentSignups.push({
+              id: createId("signup"),
+              assignmentId,
+              role: String(fd.get("role") || "helfer"),
+              firstName: String(fd.get("firstName") || "").trim(),
+              lastName: String(fd.get("lastName") || "").trim(),
+              phone: String(fd.get("phone") || "").trim(),
+              managementToken: createId("mgmt"),
+              signedUpAt: new Date().toISOString()
+            });
+
+            saveData();
+            if (broadcast) broadcast.postMessage("update");
+            renderAssignmentList(category);
+            showToast("Erfolgreich eingetragen.");
+          });
+        });
+
+        $$(".remove-signup-btn", listEl).forEach(btn => {
+          btn.addEventListener("click", () => {
+            if (!confirm("Person wirklich aus diesem Termin austragen?")) return;
+            const signup = state.data.assignmentSignups.find(s => s.id === btn.dataset.signupId);
+            if (signup) {
+              signup.cancelledAt = new Date().toISOString();
+              saveData();
+              if (broadcast) broadcast.postMessage("update");
+              renderAssignmentList(category);
+              showToast("Person ausgetragen.");
+            }
+          });
+        });
+
+        $$(".copy-link-btn", listEl).forEach(btn => {
+          btn.addEventListener("click", () => {
+            navigator.clipboard.writeText(btn.dataset.link);
+            showToast("Link kopiert.");
+          });
+        });
+
+        $$(".copy-wa-btn", listEl).forEach(btn => {
+          btn.addEventListener("click", () => {
+            const timeInfo = btn.dataset.time ? ` um ${btn.dataset.time} Uhr` : "";
+            const text = `Hallo! Für "${btn.dataset.title}" am ${btn.dataset.date}${timeInfo} suchen wir noch Unterstützung. Bitte trage dich hier ein: ${btn.dataset.link}`;
+            navigator.clipboard.writeText(text);
+            showToast("WhatsApp Text kopiert.");
+          });
+        });
+
+        $$(".delete-assign-btn", listEl).forEach(btn => {
+          btn.addEventListener("click", () => {
+            if (!confirm("Termin wirklich löschen?")) return;
+            state.data.assignments = state.data.assignments.filter(x => x.id !== btn.dataset.id);
+            state.data.assignmentSignups = state.data.assignmentSignups.filter(x => x.assignmentId !== btn.dataset.id);
+            saveData();
+            renderAssignmentList(category);
+            showToast("Gelöscht.");
+          });
+        });
+      }
+
+      /* ÖFFENTLICHE ANSICHT */
+
+      function isPublicRoute() {
+        const hash = location.hash.slice(1);
+        return hash.startsWith("einsatz=") || hash.startsWith("einsaetze") || hash.startsWith("anmeldung=");
+      }
+
+      function renderPublicRoute() {
+        const hash = location.hash.slice(1);
+
+        if (hash.startsWith("einsatz=")) {
+          const token = hash.replace("einsatz=", "");
+          const a = state.data.assignments.find(x => x.linkToken === token);
+          renderPublicSingle(a);
+        } else if (hash.startsWith("einsaetze")) {
+          const rawCat = hash.includes("=") ? hash.split("=")[1] : "";
+          const category = rawCat ? decodeURIComponent(rawCat) : null;
+          renderPublicOverview(category);
+        } else if (hash.startsWith("anmeldung=")) {
+          const token = hash.replace("anmeldung=", "");
+          renderPublicManageSignup(token);
+        }
+      }
+
+      function renderPublicOverview(category) {
+        const today = currentDate();
+        const isFSA = category === "FSA Helfer";
+        const assignments = state.data.assignments
+          .filter(a => (!category || a.category === category) && a.date >= today)
+          .sort((a, b) => `${a.date}${a.time || ''}`.localeCompare(`${b.date}${b.time || ''}`));
+
+        const title = category ? `${category} - Übersicht` : "Offene Einsätze";
+
+        $("#publicContent").innerHTML = `
+          <div class="public-header">
+            <div class="brand-mark">FCH</div>
+            <h2>${escapeHtml(title)}</h2>
+            <p>Wähle einen Termin aus und trage dich verbindlich ein.</p>
+          </div>
+
+          <div class="public-body" id="publicOverviewList">
+            ${assignments.length ? assignments.map(a => {
+              const signups = state.data.assignmentSignups.filter(s => s.assignmentId === a.id && !s.cancelledAt);
+
+              if (isFSA) {
+                const hlSignups = signups.filter(s => s.role === "hauptleitung");
+                const helferSignups = signups.filter(s => s.role !== "hauptleitung");
+                const neededHL = a.neededHauptleitung ?? 1;
+                const neededH = a.neededHelfer ?? 3;
+
+                const hlFull = hlSignups.length >= neededHL;
+                const hFull = helferSignups.length >= neededH;
+                const isAllFull = hlFull && hFull;
+
+                const hlNames = hlSignups.map(s => escapeHtml(s.firstName)).join(", ");
+                const hNames = helferSignups.map(s => escapeHtml(s.firstName)).join(", ");
+
+                return `
+                  <div class="card" style="margin-bottom:16px;">
+                    <div class="assignment-head">
+                      <div>
+                        <h3 style="margin:0 0 4px 0">${escapeHtml(a.title)}</h3>
+                        <div class="assignment-meta">
+                          📅 <strong>${formatDate(a.date)}</strong>
+                        </div>
+                      </div>
+                      <span class="assignment-status ${isAllFull ? "filled" : (signups.length > 0 ? "partial" : "open")}">
+                        <i class="status-dot"></i>
+                        ${isAllFull ? "Besetzt" : (signups.length > 0 ? "Teilbesetzt" : "Offen")}
+                      </span>
+                    </div>
+
+                    <div style="margin:10px 0;font-size:13px;line-height:1.6">
+                      <div>
+                        <strong>Hauptleitung (1):</strong> ${hlFull ? `<span style="color:var(--success);font-weight:700">Besetzt (${hlNames})</span>` : `<span style="color:var(--danger);font-weight:700">Noch offen</span>`}
+                      </div>
+                      <div>
+                        <strong>Helfer (${neededH}):</strong> ${helferSignups.length} von ${neededH} besetzt ${hNames ? `(${hNames})` : ""}
+                      </div>
+                    </div>
+
+                    ${isAllFull ? `
+                      <div class="notice" style="margin:0">Dieses Training ist bereits vollständig besetzt. Vielen Dank!</div>
+                    ` : `
+                      <div id="formWrap_${a.id}">
+                        <button class="button button-primary show-form-btn" data-id="${a.id}">Für dieses Training eintragen</button>
+                        <form id="form_${a.id}" class="signup-form hidden" data-assignment-id="${a.id}">
+                          <label>
+                            Rolle auswählen
+                            <select name="role" required>
+                              ${!hlFull ? `<option value="hauptleitung">Hauptleitung (1 Person)</option>` : ""}
+                              ${!hFull ? `<option value="helfer" selected>Helfer (${neededH - helferSignups.length} Plätze frei)</option>` : ""}
+                            </select>
+                          </label>
+                          <div class="form-grid">
+                            <label>Vorname <input name="firstName" required placeholder="Max"></label>
+                            <label>Name <input name="lastName" required placeholder="Muster"></label>
+                            <label>Telefonnummer <input name="phone" type="tel" required placeholder="079 123 45 67"></label>
+                          </div>
+                          <button class="button button-primary" type="submit">Verbindlich eintragen</button>
+                        </form>
+                      </div>
+                    `}
+                  </div>
+                `;
+              } else {
+                const needed = a.neededCount || 1;
+                const isFilled = signups.length >= needed;
+                const firstNames = signups.map(s => escapeHtml(s.firstName)).join(", ");
+
+                return `
+                  <div class="card" style="margin-bottom:16px;">
+                    <div class="assignment-head">
+                      <div>
+                        <h3 style="margin:0 0 4px 0">${escapeHtml(a.title)}</h3>
+                        <div class="assignment-meta">
+                          📅 <strong>${formatDate(a.date)}</strong>
+                          ${a.time ? ` · Anpfiff: <strong>${a.time} Uhr</strong>` : ""}
+                          ${a.contactName ? `<br>Trainer: ${escapeHtml(a.contactName)}` : ""}
+                        </div>
+                      </div>
+                      <span class="assignment-status ${isFilled ? "filled" : "open"}">
+                        <i class="status-dot"></i>
+                        ${isFilled ? "Besetzt" : "Offen"}
+                      </span>
+                    </div>
+
+                    <div class="slot-count" style="margin-bottom:12px">
+                      ${signups.length} von ${needed} Plätzen besetzt
+                    </div>
+
+                    ${isFilled ? `
+                      <div class="notice" style="margin:0">
+                        Bereits besetzt. Eingeteilt: <strong>${firstNames}</strong>
+                      </div>
+                    ` : `
+                      <div id="formWrap_${a.id}">
+                        <button class="button button-primary show-form-btn" data-id="${a.id}">Eintragen</button>
+                        <form id="form_${a.id}" class="signup-form hidden" data-assignment-id="${a.id}">
+                          <div class="form-grid">
+                            <label>Vorname <input name="firstName" required placeholder="Max"></label>
+                            <label>Name <input name="lastName" required placeholder="Muster"></label>
+                            <label>Telefonnummer <input name="phone" type="tel" required placeholder="079 123 45 67"></label>
+                          </div>
+                          <button class="button button-primary" type="submit">Verbindlich eintragen</button>
+                        </form>
+                      </div>
+                    `}
+                  </div>
+                `;
+              }
+            }).join("") : `<div class="card empty">Aktuell sind keine offenen kommenden Termine ausgeschrieben.</div>`}
+          </div>
+        `;
+
+        $$(".show-form-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const form = $(`#form_${btn.dataset.id}`);
+            form.classList.remove("hidden");
+            btn.classList.add("hidden");
+          });
+        });
+
+        $$(".signup-form").forEach(form => {
+          form.addEventListener("submit", event => {
+            event.preventDefault();
+            const assignmentId = form.dataset.assignmentId;
+            const a = state.data.assignments.find(x => x.id === assignmentId);
+            if (!a) return;
+
+            const fd = new FormData(form);
+            const token = createId("mgmt");
+
+            state.data.assignmentSignups.push({
+              id: createId("signup"),
+              assignmentId: a.id,
+              role: String(fd.get("role") || "helfer"),
+              firstName: String(fd.get("firstName") || "").trim(),
+              lastName: String(fd.get("lastName") || "").trim(),
+              phone: String(fd.get("phone") || "").trim(),
+              managementToken: token,
+              signedUpAt: new Date().toISOString()
+            });
+
+            saveData();
+            if (broadcast) broadcast.postMessage("update");
+
+            const wrap = $(`#formWrap_${a.id}`);
+            wrap.innerHTML = `
+              <div class="notice" style="margin:0">
+                <strong>Vielen Dank für deinen Einsatz!</strong><br>
+                Du bist für <strong>${escapeHtml(a.title)}</strong> am ${formatDate(a.date)} eingetragen.<br><br>
+                <a href="${location.origin}${location.pathname}#anmeldung=${token}" style="font-weight:700;color:var(--blue)">Einsatz verwalten / abmelden</a>
+              </div>
+            `;
+            showToast("Erfolgreich eingetragen!");
+          });
+        });
+      }
+
+      function renderPublicSingle(assignment) {
+        const content = $("#publicContent");
+        if (!assignment) {
+          content.innerHTML = `
+            <div class="public-header"><div class="brand-mark">FCH</div><h2>Einsatz nicht gefunden</h2></div>
+            <div class="public-body"><div class="card empty">Dieser Link ist nicht mehr gültig.</div></div>
+          `;
+          return;
+        }
+
+        const isPast = assignment.date < currentDate();
+        const isFSA = assignment.category === "FSA Helfer";
+        const signups = state.data.assignmentSignups.filter(s => s.assignmentId === assignment.id && !s.cancelledAt);
+
+        let isAllFull = false;
+        let hlFull = false;
+        let hFull = false;
+        let hlNames = "";
+        let hNames = "";
+        const neededH = assignment.neededHelfer ?? 3;
+
+        if (isFSA) {
+          const hlSignups = signups.filter(s => s.role === "hauptleitung");
+          const helferSignups = signups.filter(s => s.role !== "hauptleitung");
+          hlFull = hlSignups.length >= (assignment.neededHauptleitung ?? 1);
+          hFull = helferSignups.length >= neededH;
+          isAllFull = hlFull && hFull;
+          hlNames = hlSignups.map(s => escapeHtml(s.firstName)).join(", ");
+          hNames = helferSignups.map(s => escapeHtml(s.firstName)).join(", ");
+        } else {
+          isAllFull = signups.length >= (assignment.neededCount || 1);
+        }
+
+        content.innerHTML = `
+          <div class="public-header">
+            <div class="brand-mark">FCH</div>
+            <h2>FCH Helfer-Einschreibung</h2>
+            <p>Freiwilliger Einsatz im Verein</p>
+          </div>
+
+          <div class="public-body">
+            <div class="card">
+              <h2>${escapeHtml(assignment.title)}</h2>
+              <div class="assignment-meta">
+                📅 <strong>${formatDate(assignment.date)}</strong>
+                ${assignment.time ? ` · Anpfiff: <strong>${assignment.time} Uhr</strong>` : ""}
+                ${assignment.contactName ? `<br>Trainer: ${escapeHtml(assignment.contactName)}` : ""}
+              </div>
+
+              ${isFSA ? `
+                <div style="margin:14px 0;font-size:14px;line-height:1.6">
+                  <div><strong>Hauptleitung (1):</strong> ${hlFull ? `<span style="color:var(--success);font-weight:700">Besetzt (${hlNames})</span>` : `<span style="color:var(--danger);font-weight:700">Noch offen</span>`}</div>
+                  <div><strong>Helfer (${neededH}):</strong> ${signups.filter(s => s.role !== "hauptleitung").length} von ${neededH} besetzt ${hNames ? `(${hNames})` : ""}</div>
+                </div>
+              ` : `
+                <div class="slot-count" style="margin-bottom:14px;margin-top:14px">
+                  ${signups.length} von ${assignment.neededCount || 1} Plätzen besetzt
+                </div>
+              `}
+
+              ${isPast ? `
+                <div class="notice" style="margin:0">Dieser Termin hat bereits in der Vergangenheit stattgefunden.</div>
+              ` : isAllFull ? `
+                <div class="notice" style="margin:0">Dieser Termin ist bereits vollständig besetzt. Vielen Dank!</div>
+              ` : `
+                <form id="publicSignupForm" class="signup-form">
+                  ${isFSA ? `
+                    <label>
+                      Rolle auswählen
+                      <select name="role" required>
+                        ${!hlFull ? `<option value="hauptleitung">Hauptleitung (1 Person)</option>` : ""}
+                        ${!hFull ? `<option value="helfer" selected>Helfer</option>` : ""}
+                      </select>
+                    </label>
+                  ` : ""}
+                  <div class="form-grid">
+                    <label>Vorname <input name="firstName" required placeholder="Max"></label>
+                    <label>Name <input name="lastName" required placeholder="Muster"></label>
+                    <label>Telefonnummer <input name="phone" type="tel" required placeholder="079 123 45 67"></label>
+                  </div>
+                  <button class="button button-primary" type="submit">Verbindlich eintragen</button>
+                </form>
+              `}
+
+              <div style="margin-top:16px;text-align:center">
+                <a href="${location.origin}${location.pathname}#einsaetze=${encodeURIComponent(assignment.category)}" style="color:var(--blue);font-size:13px;font-weight:700">‹ Alle offenen ${escapeHtml(assignment.category)}-Termine anzeigen</a>
+              </div>
+            </div>
+          </div>
+        `;
+
+        $("#publicSignupForm")?.addEventListener("submit", event => {
+          event.preventDefault();
+          const fd = new FormData(event.target);
+          const token = createId("mgmt");
+
+          state.data.assignmentSignups.push({
+            id: createId("signup"),
+            assignmentId: assignment.id,
+            role: String(fd.get("role") || "helfer"),
+            firstName: String(fd.get("firstName") || "").trim(),
+            lastName: String(fd.get("lastName") || "").trim(),
+            phone: String(fd.get("phone") || "").trim(),
+            managementToken: token,
+            signedUpAt: new Date().toISOString()
+          });
+
+          saveData();
+          if (broadcast) broadcast.postMessage("update");
+
+          event.target.innerHTML = `
+            <div class="notice" style="margin:0">
+              <strong>Danke für deine Unterstützung!</strong><br>
+              Du bist verbindlich eingetragen.<br><br>
+              <a href="${location.origin}${location.pathname}#anmeldung=${token}" style="font-weight:700;color:var(--blue)">Anmeldung verwalten oder abmelden</a>
+            </div>
+          `;
+        });
+      }
+
+      function renderPublicManageSignup(token) {
+        const signup = state.data.assignmentSignups.find(s => s.managementToken === token && !s.cancelledAt);
+        const content = $("#publicContent");
+
+        if (!signup) {
+          content.innerHTML = `
+            <div class="public-header"><div class="brand-mark">FCH</div><h2>Anmeldung</h2></div>
+            <div class="public-body"><div class="card empty">Anmeldung nicht gefunden oder bereits abgemeldet.</div></div>
+          `;
+          return;
+        }
+
+        const assignment = state.data.assignments.find(a => a.id === signup.assignmentId);
+
+        content.innerHTML = `
+          <div class="public-header"><div class="brand-mark">FCH</div><h2>Einsatz Details</h2></div>
+          <div class="public-body">
+            <div class="card">
+              <h3>${escapeHtml(assignment?.title || "Termin")}</h3>
+              <p class="assignment-meta">
+                ${assignment ? `📅 ${formatDate(assignment.date)}${assignment.time ? ` · Anpfiff: ${assignment.time} Uhr` : ''}` : ""}
+              </p>
+              <p class="assignment-meta">
+                ${signup.role === "hauptleitung" ? "Rolle: <strong>Hauptleitung</strong><br>" : (signup.role === "helfer" ? "Rolle: <strong>Helfer</strong><br>" : "")}
+                Eingetragen: <strong>${escapeHtml(signup.firstName)} ${escapeHtml(signup.lastName)}</strong>
+                ${signup.phone ? `<br>Telefon: ${escapeHtml(signup.phone)}` : ""}
+              </p>
+              <button class="button button-danger" id="cancelSignupBtn">Vom Termin abmelden</button>
+            </div>
+          </div>
+        `;
+
+        $("#cancelSignupBtn").addEventListener("click", () => {
+          if (!confirm("Möchtest du dich wirklich von diesem Termin abmelden?")) return;
+          signup.cancelledAt = new Date().toISOString();
+          saveData();
+          if (broadcast) broadcast.postMessage("update");
+          renderPublicManageSignup(token);
+          showToast("Erfolgreich abgemeldet.");
+        });
+      }
+
+      let toastTimer;
+      function showToast(message) {
+        const toast = $("#toast");
+        toast.textContent = message;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("show"), 2400);
+      }
+
+      if (broadcast) {
+        broadcast.onmessage = () => {
+          state.data = loadData();
+          if (isPublicRoute()) renderPublicRoute();
+          else if (state.activeModule !== "dashboard") renderModule(state.activeModule);
+        };
+      }
+
+      window.addEventListener("hashchange", () => renderApp());
+
+      renderApp();
     })();
   </script>
 </body>
 </html>
+
