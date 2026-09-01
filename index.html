@@ -154,6 +154,7 @@
     }
 
     .form-grid.two-columns { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .form-grid.four-columns { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 
     label {
       display: grid;
@@ -528,11 +529,31 @@
       border: 1px dashed var(--border);
     }
 
+    .event-group-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .event-group-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--blue-soft);
+      flex-wrap: wrap;
+    }
+
     @media (max-width: 760px) {
       .header-inner, .section-head { align-items: flex-start; flex-direction: column; }
       .header-controls { width: 100%; flex-direction: column; align-items: stretch; }
       .role-select { min-width: 0; }
-      .filters, .form-grid, .form-grid.two-columns, .dashboard-grid, .admin-layout {
+      .filters, .form-grid, .form-grid.two-columns, .form-grid.four-columns, .dashboard-grid, .admin-layout {
         grid-template-columns: 1fr;
       }
       .player-row { grid-template-columns: 1fr; }
@@ -548,7 +569,7 @@
 
   <script>
     (() => {
-      const STORAGE_KEY = "fch-verein-platform-v17";
+      const STORAGE_KEY = "fch-verein-platform-v19";
       const USER_KEY = "fch-simulated-user";
       const ACTIVE_TEAM_KEY = "fch-active-team";
 
@@ -601,9 +622,9 @@
         },
         "events": {
           title: "Events",
-          subtitle: "Helfer bei Vereinsanlässen",
+          subtitle: "Helfer bei Vereinsanlässen & Schichtplanung",
           icon: "🎉",
-          type: "assignments",
+          type: "events-manager",
           category: "Events"
         }
       };
@@ -629,6 +650,31 @@
         ],
         events: [],
         attendance: {},
+        clubEvents: [
+          {
+            id: "ev-1",
+            title: "Sommerturnier & Grillfest",
+            token: "sommerfest-2026",
+            shifts: [
+              {
+                id: "sh-1",
+                task: "Grill",
+                date: "2026-09-05",
+                startTime: "12:00",
+                endTime: "15:00",
+                neededCount: 2
+              },
+              {
+                id: "sh-2",
+                task: "Grill",
+                date: "2026-09-05",
+                startTime: "15:00",
+                endTime: "18:00",
+                neededCount: 2
+              }
+            ]
+          }
+        ],
         assignments: [
           {
             id: "asg-1",
@@ -673,9 +719,8 @@
       function loadData() {
         try {
           const saved = JSON.parse(localStorage.getItem(STORAGE_KEY))
-            || JSON.parse(localStorage.getItem("fch-verein-platform-v16"))
-            || JSON.parse(localStorage.getItem("fch-verein-platform-v15"))
-            || JSON.parse(localStorage.getItem("fch-verein-platform-v14"));
+            || JSON.parse(localStorage.getItem("fch-verein-platform-v18"))
+            || JSON.parse(localStorage.getItem("fch-verein-platform-v17"));
 
           if (saved && Array.isArray(saved.teams) && Array.isArray(saved.players)) {
             saved.events ||= [];
@@ -683,6 +728,7 @@
             saved.assignments ||= defaultData.assignments;
             saved.assignmentSignups ||= [];
             saved.contacts ||= defaultData.contacts;
+            saved.clubEvents ||= defaultData.clubEvents;
             return saved;
           }
         } catch {}
@@ -712,6 +758,7 @@
       }
 
       function formatDate(date) {
+        if (!date) return "";
         return new Intl.DateTimeFormat("de-CH", {
           weekday: "short",
           day: "2-digit",
@@ -927,6 +974,8 @@
           renderAttendanceModule(moduleId, config);
         } else if (config.type === "assignments") {
           renderAssignmentsModule(moduleId, config);
+        } else if (config.type === "events-manager") {
+          renderEventsManagerModule();
         }
       }
 
@@ -1836,7 +1885,351 @@
         return text.split(/\r?\n/).filter(Boolean).map(line => line.split(",").map(c => c.replace(/^"|"$/g, "").trim()));
       }
 
-      /* EINSATZ / SCHIRI / FSA MODULE */
+      /* MODUL EVENTS (SCHICHTENPLANUNG) */
+
+      function renderEventsManagerModule() {
+        $("#teamSelect").classList.add("hidden");
+        state.data.clubEvents ||= [];
+
+        $("#moduleContent").innerHTML = `
+          <nav class="tabs">
+            <button class="tab active" data-tab="events-list">Events & Schichten</button>
+            ${isAnyAdmin() ? `<button class="tab" data-tab="events-create">Event erstellen</button>` : ""}
+            ${isAnyAdmin() ? `<button class="tab" data-tab="shift-create">Schicht hinzufügen</button>` : ""}
+          </nav>
+
+          <section class="panel active" id="events-list">
+            <div class="section-head">
+              <div>
+                <h2>Events & Helfer-Schichten</h2>
+                <p>Verwalte Vereinsanlässe und teile Helfer für Schichten ein.</p>
+              </div>
+            </div>
+            <div id="clubEventsContainer"></div>
+          </section>
+
+          ${isAnyAdmin() ? `
+            <section class="panel" id="events-create">
+              <div class="section-head">
+                <div>
+                  <h2>Neuen Event erstellen</h2>
+                  <p>Erfasse den übergeordneten Anlass (z. B. Grümpelturnier, Sommerfest).</p>
+                </div>
+              </div>
+
+              <div class="card">
+                <form id="newClubEventForm">
+                  <div class="form-grid">
+                    <label style="grid-column: span 2;">
+                      Event Name
+                      <input id="clubEventTitle" required placeholder="z. B. Sommerfest 2026">
+                    </label>
+                  </div>
+
+                  <button class="button button-primary" type="submit" style="margin-top:10px">Event anlegen</button>
+                </form>
+              </div>
+            </section>
+
+            <section class="panel" id="shift-create">
+              <div class="section-head">
+                <div>
+                  <h2>Schicht zu Event hinzufügen</h2>
+                  <p>Definiere Aufgabe, Datum, Zeitfenster und benötigte Helferanzahl.</p>
+                </div>
+              </div>
+
+              <div class="card">
+                <form id="newShiftForm">
+                  <label style="margin-bottom:12px">
+                    Event auswählen
+                    <select id="shiftEventSelect" required>
+                      ${state.data.clubEvents.length ? state.data.clubEvents.map(ev => `
+                        <option value="${ev.id}">${escapeHtml(ev.title)}</option>
+                      `).join("") : `<option value="">Bitte zuerst einen Event erstellen</option>`}
+                    </select>
+                  </label>
+
+                  <div class="form-grid four-columns">
+                    <label>
+                      Aufgabe / Schicht
+                      <input id="shiftTask" required placeholder="z. B. Grill">
+                    </label>
+
+                    <label>
+                      Datum
+                      <input id="shiftDate" type="date" required>
+                    </label>
+
+                    <label>
+                      Start Schicht
+                      <input id="shiftStartTime" type="time" required>
+                    </label>
+
+                    <label>
+                      Ende Schicht
+                      <input id="shiftEndTime" type="time" required>
+                    </label>
+                  </div>
+
+                  <div class="form-grid two-columns" style="margin-top:12px">
+                    <label>
+                      Benötigte Personen
+                      <input id="shiftNeededCount" type="number" min="1" value="2" required>
+                    </label>
+                  </div>
+
+                  <button class="button button-primary" type="submit" style="margin-top:12px" ${!state.data.clubEvents.length ? "disabled" : ""}>Schicht speichern</button>
+                </form>
+              </div>
+            </section>
+          ` : ""}
+        `;
+
+        $$(".tab").forEach(tab => {
+          tab.addEventListener("click", () => {
+            $$(".panel").forEach(p => p.classList.toggle("active", p.id === tab.dataset.tab));
+            $$(".tab").forEach(t => t.classList.toggle("active", t === tab));
+            if (tab.dataset.tab === "events-list") renderClubEventsList();
+          });
+        });
+
+        $("#newClubEventForm")?.addEventListener("submit", event => {
+          event.preventDefault();
+          const title = $("#clubEventTitle").value.trim();
+          if (!title) return;
+
+          const newEv = {
+            id: createId("cev"),
+            title,
+            token: createId("evlnk"),
+            shifts: []
+          };
+
+          state.data.clubEvents.push(newEv);
+          saveData();
+          if (broadcast) broadcast.postMessage("update");
+          event.target.reset();
+          renderEventsManagerModule();
+          $(`.tab[data-tab="shift-create"]`)?.click();
+          showToast("Event erstellt. Jetzt Schichten erfassen.");
+        });
+
+        $("#newShiftForm")?.addEventListener("submit", event => {
+          event.preventDefault();
+          const eventId = $("#shiftEventSelect").value;
+          const ev = state.data.clubEvents.find(x => x.id === eventId);
+          if (!ev) return;
+
+          ev.shifts ||= [];
+          ev.shifts.push({
+            id: createId("sh"),
+            task: $("#shiftTask").value.trim(),
+            date: $("#shiftDate").value,
+            startTime: $("#shiftStartTime").value,
+            endTime: $("#shiftEndTime").value,
+            neededCount: Number($("#shiftNeededCount").value || 1)
+          });
+
+          saveData();
+          if (broadcast) broadcast.postMessage("update");
+          event.target.reset();
+          $("#shiftNeededCount").value = "2";
+          $(`.tab[data-tab="events-list"]`)?.click();
+          showToast("Schicht erfolgreich hinzugefügt.");
+        });
+
+        renderClubEventsList();
+      }
+
+      function renderClubEventsList() {
+        const container = $("#clubEventsContainer");
+        if (!container) return;
+
+        if (!state.data.clubEvents.length) {
+          container.innerHTML = `<div class="card empty">Noch keine Events erfasst. Erstelle zuerst einen Event im Tab "Event erstellen".</div>`;
+          return;
+        }
+
+        container.innerHTML = state.data.clubEvents.map(ev => {
+          const evLink = `${location.origin}${location.pathname}#event=${ev.token}`;
+          const shifts = ev.shifts || [];
+
+          return `
+            <div class="event-group-card">
+              <div class="event-group-head">
+                <div>
+                  <h3 style="margin:0 0 4px 0;font-size:19px;color:var(--blue)">${escapeHtml(ev.title)}</h3>
+                  <div class="assignment-meta">${shifts.length} Schichten erfasst</div>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                  <button class="button button-primary copy-evlink-btn" data-link="${evLink}">Link für diesen Event kopieren</button>
+                  ${isAnyAdmin() ? `<button class="small-button delete-clubevent-btn" data-id="${ev.id}">Event löschen</button>` : ""}
+                </div>
+              </div>
+
+              <div class="assignment-list">
+                ${shifts.length ? shifts.map(sh => {
+                  const signups = state.data.assignmentSignups.filter(s => s.assignmentId === sh.id && !s.cancelledAt);
+                  const isFilled = signups.length >= sh.neededCount;
+
+                  return `
+                    <div class="assignment-card">
+                      <div class="assignment-head">
+                        <div>
+                          <h4 class="assignment-title">${escapeHtml(sh.task)}</h4>
+                          <div class="assignment-meta">
+                            📅 <strong>${formatDate(sh.date)}</strong> · Schichtzeit: <strong>${sh.startTime} - ${sh.endTime} Uhr</strong>
+                          </div>
+                        </div>
+                        <span class="assignment-status ${isFilled ? "filled" : (signups.length > 0 ? "partial" : "open")}">
+                          <i class="status-dot"></i>
+                          ${isFilled ? "Besetzt" : (signups.length > 0 ? "Teilbesetzt" : "Offen")}
+                        </span>
+                      </div>
+
+                      <div class="slot-count">${signups.length} von ${sh.neededCount} Helfern eingetragen</div>
+
+                      ${signups.length ? `
+                        <div class="assignment-signups">
+                          <strong>Eingetragene Helfer (Admin Ansicht):</strong>
+                          <ul>
+                            ${signups.map(s => `
+                              <li>
+                                <span>
+                                  <strong>${escapeHtml(s.firstName)} ${escapeHtml(s.lastName)}</strong>
+                                  ${s.phone ? `· Tel: ${escapeHtml(s.phone)}` : ""}
+                                </span>
+                                ${isAnyAdmin() ? `<button class="small-button remove-signup-btn" data-signup-id="${s.id}" style="padding:3px 7px;font-size:11px">Entfernen</button>` : ""}
+                              </li>
+                            `).join("")}
+                          </ul>
+                        </div>
+                      ` : ""}
+
+                      ${isAnyAdmin() ? `
+                        <div class="assignment-actions">
+                          ${!isFilled ? `<button class="button button-primary admin-add-schiri-btn" data-id="${sh.id}">Helfer manuell eintragen</button>` : ""}
+                          <button class="small-button delete-shift-btn" data-ev-id="${ev.id}" data-sh-id="${sh.id}">Schicht löschen</button>
+                        </div>
+
+                        <div id="adminManualWrap_${sh.id}" class="admin-manual-form hidden">
+                          <h4 style="margin:0 0 8px 0;font-size:14px">Helfer manuell für "${escapeHtml(sh.task)}" eintragen</h4>
+                          <form class="admin-direct-signup-form" data-assignment-id="${sh.id}">
+                            <div class="form-grid">
+                              <label>Vorname <input name="firstName" required placeholder="Max"></label>
+                              <label>Name <input name="lastName" required placeholder="Muster"></label>
+                              <label>Telefonnummer <input name="phone" type="tel" required placeholder="079 123 45 67"></label>
+                            </div>
+                            <div style="margin-top:10px;display:flex;gap:8px">
+                              <button class="button button-primary" type="submit">Eintragen</button>
+                              <button type="button" class="button button-secondary cancel-manual-btn" data-id="${sh.id}">Abbrechen</button>
+                            </div>
+                          </form>
+                        </div>
+                      ` : ""}
+                    </div>
+                  `;
+                }).join("") : `<div class="empty">Noch keine Schichten für diesen Event angelegt.</div>`}
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        $$(".copy-evlink-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            navigator.clipboard.writeText(btn.dataset.link);
+            showToast("Event-Link kopiert.");
+          });
+        });
+
+        $$(".delete-clubevent-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            if (!confirm("Event inklusive aller Schichten und Anmeldungen löschen?")) return;
+            const evId = btn.dataset.id;
+            const ev = state.data.clubEvents.find(x => x.id === evId);
+            if (ev && ev.shifts) {
+              const shiftIds = ev.shifts.map(s => s.id);
+              state.data.assignmentSignups = state.data.assignmentSignups.filter(s => !shiftIds.includes(s.assignmentId));
+            }
+            state.data.clubEvents = state.data.clubEvents.filter(x => x.id !== evId);
+            saveData();
+            if (broadcast) broadcast.postMessage("update");
+            renderClubEventsList();
+            showToast("Event gelöscht.");
+          });
+        });
+
+        $$(".delete-shift-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            if (!confirm("Schicht wirklich löschen?")) return;
+            const evId = btn.dataset.evId;
+            const shId = btn.dataset.shId;
+            const ev = state.data.clubEvents.find(x => x.id === evId);
+            if (ev) {
+              ev.shifts = ev.shifts.filter(s => s.id !== shId);
+              state.data.assignmentSignups = state.data.assignmentSignups.filter(s => s.assignmentId !== shId);
+              saveData();
+              if (broadcast) broadcast.postMessage("update");
+              renderClubEventsList();
+              showToast("Schicht gelöscht.");
+            }
+          });
+        });
+
+        $$(".admin-add-schiri-btn", container).forEach(btn => {
+          btn.addEventListener("click", () => {
+            const formWrap = $(`#adminManualWrap_${btn.dataset.id}`);
+            formWrap?.classList.toggle("hidden");
+          });
+        });
+
+        $$(".cancel-manual-btn", container).forEach(btn => {
+          btn.addEventListener("click", () => {
+            const formWrap = $(`#adminManualWrap_${btn.dataset.id}`);
+            formWrap?.classList.add("hidden");
+          });
+        });
+
+        $$(".admin-direct-signup-form", container).forEach(form => {
+          form.addEventListener("submit", event => {
+            event.preventDefault();
+            const assignmentId = form.dataset.assignmentId;
+            const fd = new FormData(form);
+
+            state.data.assignmentSignups.push({
+              id: createId("signup"),
+              assignmentId,
+              firstName: String(fd.get("firstName") || "").trim(),
+              lastName: String(fd.get("lastName") || "").trim(),
+              phone: String(fd.get("phone") || "").trim(),
+              managementToken: createId("mgmt"),
+              signedUpAt: new Date().toISOString()
+            });
+
+            saveData();
+            if (broadcast) broadcast.postMessage("update");
+            renderClubEventsList();
+            showToast("Helfer erfolgreich eingetragen.");
+          });
+        });
+
+        $$(".remove-signup-btn", container).forEach(btn => {
+          btn.addEventListener("click", () => {
+            if (!confirm("Helfer wirklich aus dieser Schicht austragen?")) return;
+            const signup = state.data.assignmentSignups.find(s => s.id === btn.dataset.signupId);
+            if (signup) {
+              signup.cancelledAt = new Date().toISOString();
+              saveData();
+              if (broadcast) broadcast.postMessage("update");
+              renderClubEventsList();
+              showToast("Helfer ausgetragen.");
+            }
+          });
+        });
+      }
+
+      /* EINSATZ / SCHIRI / FSA / TURNIER MODULE */
 
       function renderAssignmentsModule(moduleId, config) {
         $("#teamSelect").classList.add("hidden");
@@ -1844,7 +2237,6 @@
         const categoryOverviewLink = `${location.origin}${location.pathname}#einsaetze=${encodeURIComponent(category)}`;
         const isDSchiri = moduleId === "d-schiris";
         const isFSA = moduleId === "fsa-helfer";
-        const showWhatsApp = !["d-schiris", "fsa-helfer", "turnier"].includes(moduleId);
 
         $("#moduleContent").innerHTML = `
           <nav class="tabs">
@@ -1868,7 +2260,6 @@
               </div>
               <div style="display:flex;gap:8px;flex-wrap:wrap">
                 <button class="button button-primary" id="copyCatLinkBtn">Link für alle ${isFSA ? "Trainings" : isDSchiri ? "Spiele" : "Termine"} kopieren</button>
-                ${showWhatsApp ? `<button class="button button-secondary" id="copyCatWaBtn">WhatsApp: Alle ${isFSA ? "Trainings" : isDSchiri ? "Spiele" : "Termine"}</button>` : ""}
               </div>
             </div>
 
@@ -1973,8 +2364,8 @@
                   ` : `
                     <div class="form-grid">
                       <label>
-                        Titel
-                        <input id="genAssignmentTitle" required placeholder="z.B. Festwirtschaft">
+                        Titel / Aufgabe
+                        <input id="genAssignmentTitle" required placeholder="z. B. Betreuer Feld 1">
                       </label>
 
                       <label>
@@ -1986,7 +2377,7 @@
                       </label>
 
                       <label>
-                        Startdatum
+                        Datum
                         <input id="genAssignmentDate" type="date" required>
                       </label>
 
@@ -2047,19 +2438,11 @@
           showToast("Link für alle Termine kopiert.");
         });
 
-        if (showWhatsApp) {
-          $("#copyCatWaBtn")?.addEventListener("click", () => {
-            const text = `Hallo zusammen! Hier ist die Übersicht aller offenen ${config.title}-Termine. Bitte wählt euren Einsatz aus und tragt euch direkt ein: ${categoryOverviewLink}`;
-            navigator.clipboard.writeText(text);
-            showToast("WhatsApp Text kopiert.");
-          });
-        }
-
         $$(".tab").forEach(tab => {
           tab.addEventListener("click", () => {
             $$(".panel").forEach(p => p.classList.toggle("active", p.id === tab.dataset.tab));
             $$(".tab").forEach(t => t.classList.toggle("active", t === tab));
-            if (tab.dataset.tab === "assignments-list") renderAssignmentList(category, showWhatsApp);
+            if (tab.dataset.tab === "assignments-list") renderAssignmentList(category);
             if (tab.dataset.tab === "contacts-manage") renderContactsList();
           });
         });
@@ -2209,7 +2592,7 @@
           showToast("Trainer hinzugefügt.");
         });
 
-        renderAssignmentList(category, showWhatsApp);
+        renderAssignmentList(category);
         if (isDSchiri) renderContactsList();
       }
 
@@ -2236,7 +2619,7 @@
         });
       }
 
-      function renderAssignmentList(category, showWhatsApp = false) {
+      function renderAssignmentList(category) {
         const isFSA = category === "FSA Helfer";
         const assignments = state.data.assignments
           .filter(a => a.category === category)
@@ -2340,7 +2723,6 @@
                 <div class="assignment-actions">
                   ${!isFilled ? `<button class="button button-primary admin-add-schiri-btn" data-id="${a.id}">Manuell eintragen</button>` : ""}
                   <button class="button button-secondary copy-link-btn" data-link="${singleLink}">Link kopieren</button>
-                  ${showWhatsApp ? `<button class="button button-secondary copy-wa-btn" data-title="${escapeHtml(a.title)}" data-date="${formatDate(a.date)}" data-time="${a.time || ''}" data-link="${singleLink}">WhatsApp</button>` : ""}
                   <button class="small-button delete-assign-btn" data-id="${a.id}">Löschen</button>
                 </div>
 
@@ -2405,7 +2787,7 @@
 
             saveData();
             if (broadcast) broadcast.postMessage("update");
-            renderAssignmentList(category, showWhatsApp);
+            renderAssignmentList(category);
             showToast("Erfolgreich eingetragen.");
           });
         });
@@ -2418,7 +2800,7 @@
               signup.cancelledAt = new Date().toISOString();
               saveData();
               if (broadcast) broadcast.postMessage("update");
-              renderAssignmentList(category, showWhatsApp);
+              renderAssignmentList(category);
               showToast("Person ausgetragen.");
             }
           });
@@ -2431,24 +2813,13 @@
           });
         });
 
-        if (showWhatsApp) {
-          $$(".copy-wa-btn", listEl).forEach(btn => {
-            btn.addEventListener("click", () => {
-              const timeInfo = btn.dataset.time ? ` um ${btn.dataset.time} Uhr` : "";
-              const text = `Hallo! Für "${btn.dataset.title}" am ${btn.dataset.date}${timeInfo} suchen wir noch Unterstützung. Bitte trage dich hier ein: ${btn.dataset.link}`;
-              navigator.clipboard.writeText(text);
-              showToast("WhatsApp Text kopiert.");
-            });
-          });
-        }
-
         $$(".delete-assign-btn", listEl).forEach(btn => {
           btn.addEventListener("click", () => {
             if (!confirm("Termin wirklich löschen?")) return;
             state.data.assignments = state.data.assignments.filter(x => x.id !== btn.dataset.id);
             state.data.assignmentSignups = state.data.assignmentSignups.filter(x => x.assignmentId !== btn.dataset.id);
             saveData();
-            renderAssignmentList(category, showWhatsApp);
+            renderAssignmentList(category);
             showToast("Gelöscht.");
           });
         });
@@ -2458,7 +2829,7 @@
 
       function isPublicRoute() {
         const hash = location.hash.slice(1);
-        return hash.startsWith("einsatz=") || hash.startsWith("einsaetze") || hash.startsWith("anmeldung=");
+        return hash.startsWith("einsatz=") || hash.startsWith("einsaetze") || hash.startsWith("event=") || hash.startsWith("anmeldung=");
       }
 
       function renderPublicRoute() {
@@ -2468,6 +2839,10 @@
           const token = hash.replace("einsatz=", "");
           const a = state.data.assignments.find(x => x.linkToken === token);
           renderPublicSingle(a);
+        } else if (hash.startsWith("event=")) {
+          const token = hash.replace("event=", "");
+          const ev = (state.data.clubEvents || []).find(x => x.token === token);
+          renderPublicEvent(ev);
         } else if (hash.startsWith("einsaetze")) {
           const rawCat = hash.includes("=") ? hash.split("=")[1] : "";
           const category = rawCat ? decodeURIComponent(rawCat) : null;
@@ -2476,6 +2851,115 @@
           const token = hash.replace("anmeldung=", "");
           renderPublicManageSignup(token);
         }
+      }
+
+      function renderPublicEvent(clubEvent) {
+        const content = $("#publicContent");
+        if (!clubEvent) {
+          content.innerHTML = `
+            <div class="public-header"><div class="brand-mark">FCH</div><h2>Event nicht gefunden</h2></div>
+            <div class="public-body"><div class="card empty">Dieser Event-Link ist nicht mehr gültig.</div></div>
+          `;
+          return;
+        }
+
+        const shifts = clubEvent.shifts || [];
+
+        content.innerHTML = `
+          <div class="public-header">
+            <div class="brand-mark">FCH</div>
+            <h2>${escapeHtml(clubEvent.title)}</h2>
+            <p>Wähle deine Schicht und trage dich verbindlich ein.</p>
+          </div>
+
+          <div class="public-body">
+            ${shifts.length ? shifts.map(sh => {
+              const signups = state.data.assignmentSignups.filter(s => s.assignmentId === sh.id && !s.cancelledAt);
+              const isFilled = signups.length >= sh.neededCount;
+              const firstNames = signups.map(s => escapeHtml(s.firstName)).join(", ");
+
+              return `
+                <div class="card" style="margin-bottom:16px;">
+                  <div class="assignment-head">
+                    <div>
+                      <h3 style="margin:0 0 4px 0">${escapeHtml(sh.task)}</h3>
+                      <div class="assignment-meta">
+                        📅 <strong>${formatDate(sh.date)}</strong> · Schichtzeit: <strong>${sh.startTime} - ${sh.endTime} Uhr</strong>
+                      </div>
+                    </div>
+                    <span class="assignment-status ${isFilled ? "filled" : "open"}">
+                      <i class="status-dot"></i>
+                      ${isFilled ? "Besetzt" : "Offen"}
+                    </span>
+                  </div>
+
+                  <div class="slot-count" style="margin-bottom:12px">
+                    ${signups.length} von ${sh.neededCount} Plätzen besetzt
+                    ${firstNames ? ` · Eingetragen: <strong>${firstNames}</strong>` : ""}
+                  </div>
+
+                  ${isFilled ? `
+                    <div class="notice" style="margin:0">
+                      Diese Schicht ist bereits vollständig besetzt. Eingetragene Helfer: <strong>${firstNames}</strong>
+                    </div>
+                  ` : `
+                    <div id="formWrap_${sh.id}">
+                      <button class="button button-primary show-form-btn" data-id="${sh.id}">Für diese Schicht eintragen</button>
+                      <form id="form_${sh.id}" class="signup-form hidden" data-assignment-id="${sh.id}">
+                        <div class="form-grid">
+                          <label>Vorname <input name="firstName" required placeholder="Max"></label>
+                          <label>Name <input name="lastName" required placeholder="Muster"></label>
+                          <label>Telefonnummer <input name="phone" type="tel" required placeholder="079 123 45 67"></label>
+                        </div>
+                        <button class="button button-primary" type="submit">Verbindlich für diese Schicht eintragen</button>
+                      </form>
+                    </div>
+                  `}
+                </div>
+              `;
+            }).join("") : `<div class="card empty">Für diesen Event sind aktuell noch keine Schichten ausgeschrieben.</div>`}
+          </div>
+        `;
+
+        $$(".show-form-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const form = $(`#form_${btn.dataset.id}`);
+            form.classList.remove("hidden");
+            btn.classList.add("hidden");
+          });
+        });
+
+        $$(".signup-form").forEach(form => {
+          form.addEventListener("submit", event => {
+            event.preventDefault();
+            const shiftId = form.dataset.assignmentId;
+            const fd = new FormData(form);
+            const token = createId("mgmt");
+
+            state.data.assignmentSignups.push({
+              id: createId("signup"),
+              assignmentId: shiftId,
+              firstName: String(fd.get("firstName") || "").trim(),
+              lastName: String(fd.get("lastName") || "").trim(),
+              phone: String(fd.get("phone") || "").trim(),
+              managementToken: token,
+              signedUpAt: new Date().toISOString()
+            });
+
+            saveData();
+            if (broadcast) broadcast.postMessage("update");
+
+            const wrap = $(`#formWrap_${shiftId}`);
+            wrap.innerHTML = `
+              <div class="notice" style="margin:0">
+                <strong>Vielen Dank für deine Unterstützung!</strong><br>
+                Du bist verbindlich für diese Schicht eingetragen.<br><br>
+                <a href="${location.origin}${location.pathname}#anmeldung=${token}" style="font-weight:700;color:var(--blue)">Anmeldung verwalten / abmelden</a>
+              </div>
+            `;
+            showToast("Erfolgreich eingetragen!");
+          });
+        });
       }
 
       function renderPublicOverview(category) {
