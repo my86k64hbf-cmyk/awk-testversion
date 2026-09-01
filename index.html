@@ -548,7 +548,7 @@
 
   <script>
     (() => {
-      const STORAGE_KEY = "fch-verein-platform-v16";
+      const STORAGE_KEY = "fch-verein-platform-v17";
       const USER_KEY = "fch-simulated-user";
       const ACTIVE_TEAM_KEY = "fch-active-team";
 
@@ -673,9 +673,9 @@
       function loadData() {
         try {
           const saved = JSON.parse(localStorage.getItem(STORAGE_KEY))
+            || JSON.parse(localStorage.getItem("fch-verein-platform-v16"))
             || JSON.parse(localStorage.getItem("fch-verein-platform-v15"))
-            || JSON.parse(localStorage.getItem("fch-verein-platform-v14"))
-            || JSON.parse(localStorage.getItem("fch-verein-platform-v13"));
+            || JSON.parse(localStorage.getItem("fch-verein-platform-v14"));
 
           if (saved && Array.isArray(saved.teams) && Array.isArray(saved.players)) {
             saved.events ||= [];
@@ -1844,6 +1844,7 @@
         const categoryOverviewLink = `${location.origin}${location.pathname}#einsaetze=${encodeURIComponent(category)}`;
         const isDSchiri = moduleId === "d-schiris";
         const isFSA = moduleId === "fsa-helfer";
+        const showWhatsApp = !["d-schiris", "fsa-helfer", "turnier"].includes(moduleId);
 
         $("#moduleContent").innerHTML = `
           <nav class="tabs">
@@ -1863,11 +1864,11 @@
             <div class="overview-share-card">
               <div>
                 <h4>Gesamtübersichts-Link für alle ${escapeHtml(config.title)}</h4>
-                <div class="assignment-meta">Diesen Link kannst du an Helfer, Eltern oder Schiedsrichter versenden. Sie sehen alle offenen kommenden Termine auf einen Blick.</div>
+                <div class="assignment-meta">Diesen Link kannst du versenden. Helfer, Eltern oder Schiedsrichter sehen alle offenen kommenden Termine auf einen Blick.</div>
               </div>
               <div style="display:flex;gap:8px;flex-wrap:wrap">
                 <button class="button button-primary" id="copyCatLinkBtn">Link für alle ${isFSA ? "Trainings" : isDSchiri ? "Spiele" : "Termine"} kopieren</button>
-                <button class="button button-secondary" id="copyCatWaBtn">WhatsApp: Alle ${isFSA ? "Trainings" : isDSchiri ? "Spiele" : "Termine"}</button>
+                ${showWhatsApp ? `<button class="button button-secondary" id="copyCatWaBtn">WhatsApp: Alle ${isFSA ? "Trainings" : isDSchiri ? "Spiele" : "Termine"}</button>` : ""}
               </div>
             </div>
 
@@ -2046,17 +2047,19 @@
           showToast("Link für alle Termine kopiert.");
         });
 
-        $("#copyCatWaBtn")?.addEventListener("click", () => {
-          const text = `Hallo zusammen! Hier ist die Übersicht aller offenen ${config.title}-Termine. Bitte wählt euren Einsatz aus und tragt euch direkt ein: ${categoryOverviewLink}`;
-          navigator.clipboard.writeText(text);
-          showToast("WhatsApp Text kopiert.");
-        });
+        if (showWhatsApp) {
+          $("#copyCatWaBtn")?.addEventListener("click", () => {
+            const text = `Hallo zusammen! Hier ist die Übersicht aller offenen ${config.title}-Termine. Bitte wählt euren Einsatz aus und tragt euch direkt ein: ${categoryOverviewLink}`;
+            navigator.clipboard.writeText(text);
+            showToast("WhatsApp Text kopiert.");
+          });
+        }
 
         $$(".tab").forEach(tab => {
           tab.addEventListener("click", () => {
             $$(".panel").forEach(p => p.classList.toggle("active", p.id === tab.dataset.tab));
             $$(".tab").forEach(t => t.classList.toggle("active", t === tab));
-            if (tab.dataset.tab === "assignments-list") renderAssignmentList(category);
+            if (tab.dataset.tab === "assignments-list") renderAssignmentList(category, showWhatsApp);
             if (tab.dataset.tab === "contacts-manage") renderContactsList();
           });
         });
@@ -2206,7 +2209,7 @@
           showToast("Trainer hinzugefügt.");
         });
 
-        renderAssignmentList(category);
+        renderAssignmentList(category, showWhatsApp);
         if (isDSchiri) renderContactsList();
       }
 
@@ -2233,7 +2236,7 @@
         });
       }
 
-      function renderAssignmentList(category) {
+      function renderAssignmentList(category, showWhatsApp = false) {
         const isFSA = category === "FSA Helfer";
         const assignments = state.data.assignments
           .filter(a => a.category === category)
@@ -2337,7 +2340,7 @@
                 <div class="assignment-actions">
                   ${!isFilled ? `<button class="button button-primary admin-add-schiri-btn" data-id="${a.id}">Manuell eintragen</button>` : ""}
                   <button class="button button-secondary copy-link-btn" data-link="${singleLink}">Link kopieren</button>
-                  <button class="button button-secondary copy-wa-btn" data-title="${escapeHtml(a.title)}" data-date="${formatDate(a.date)}" data-time="${a.time || ''}" data-link="${singleLink}">WhatsApp</button>
+                  ${showWhatsApp ? `<button class="button button-secondary copy-wa-btn" data-title="${escapeHtml(a.title)}" data-date="${formatDate(a.date)}" data-time="${a.time || ''}" data-link="${singleLink}">WhatsApp</button>` : ""}
                   <button class="small-button delete-assign-btn" data-id="${a.id}">Löschen</button>
                 </div>
 
@@ -2402,7 +2405,7 @@
 
             saveData();
             if (broadcast) broadcast.postMessage("update");
-            renderAssignmentList(category);
+            renderAssignmentList(category, showWhatsApp);
             showToast("Erfolgreich eingetragen.");
           });
         });
@@ -2415,7 +2418,7 @@
               signup.cancelledAt = new Date().toISOString();
               saveData();
               if (broadcast) broadcast.postMessage("update");
-              renderAssignmentList(category);
+              renderAssignmentList(category, showWhatsApp);
               showToast("Person ausgetragen.");
             }
           });
@@ -2428,14 +2431,16 @@
           });
         });
 
-        $$(".copy-wa-btn", listEl).forEach(btn => {
-          btn.addEventListener("click", () => {
-            const timeInfo = btn.dataset.time ? ` um ${btn.dataset.time} Uhr` : "";
-            const text = `Hallo! Für "${btn.dataset.title}" am ${btn.dataset.date}${timeInfo} suchen wir noch Unterstützung. Bitte trage dich hier ein: ${btn.dataset.link}`;
-            navigator.clipboard.writeText(text);
-            showToast("WhatsApp Text kopiert.");
+        if (showWhatsApp) {
+          $$(".copy-wa-btn", listEl).forEach(btn => {
+            btn.addEventListener("click", () => {
+              const timeInfo = btn.dataset.time ? ` um ${btn.dataset.time} Uhr` : "";
+              const text = `Hallo! Für "${btn.dataset.title}" am ${btn.dataset.date}${timeInfo} suchen wir noch Unterstützung. Bitte trage dich hier ein: ${btn.dataset.link}`;
+              navigator.clipboard.writeText(text);
+              showToast("WhatsApp Text kopiert.");
+            });
           });
-        });
+        }
 
         $$(".delete-assign-btn", listEl).forEach(btn => {
           btn.addEventListener("click", () => {
@@ -2443,7 +2448,7 @@
             state.data.assignments = state.data.assignments.filter(x => x.id !== btn.dataset.id);
             state.data.assignmentSignups = state.data.assignmentSignups.filter(x => x.assignmentId !== btn.dataset.id);
             saveData();
-            renderAssignmentList(category);
+            renderAssignmentList(category, showWhatsApp);
             showToast("Gelöscht.");
           });
         });
@@ -2835,4 +2840,3 @@
   </script>
 </body>
 </html>
-
